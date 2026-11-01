@@ -1,0 +1,6 @@
+[
+  {"provider": "ollama", "name": "qwen3:8b"},
+  {"provider": "ollama", "name": "granite4.2:8b"},
+  {"provider": "ollama", "name": "qwen3.5:9b"},
+  {"provider": "ollama", "name": "gpt-oss:20b"}
+]

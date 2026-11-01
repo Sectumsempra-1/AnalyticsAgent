@@ -26,9 +26,11 @@ dependencies = [
 # Install the provider package for the model you use, e.g. pip install -e ".[ollama]"
 ollama = ["langchain-ollama>=1.1,<2"]
 openai = ["langchain-openai>=1.7,<2"]
+evals = ["reportlab>=4"]  # PDF eval reports
 dev = [
     "pytest>=8",
     "langchain-ollama>=1.1,<2",
+    "reportlab>=4",
 ]
 
 [tool.hatch.build.targets.wheel]

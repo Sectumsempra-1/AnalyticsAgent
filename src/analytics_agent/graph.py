@@ -55,6 +55,8 @@ class AgentState(TypedDict, total=False):
     deadline: float
     stop_reason: str
     done: bool
+    report_attempts: int  # diagnostics for evals; not part of the output contract
+    removed_findings: int
 
 
 def load_model(settings: Settings) -> BaseChatModel:
@@ -167,11 +169,11 @@ class _Nodes:
         )
         messages = [*state["messages"], HumanMessage(FINAL_REPORT_PROMPT)]
         error = "no attempt made"
-        for _ in range(FINAL_REPORT_ATTEMPTS):
+        for attempt in range(1, FINAL_REPORT_ATTEMPTS + 1):
             try:
                 result = structured.invoke(messages)
                 if isinstance(result, AnalysisResult):
-                    return result.model_dump(mode="json")
+                    return {**result.model_dump(mode="json"), "report_attempts": attempt}
                 error = f"expected an AnalysisResult, got {type(result).__name__}"
             except (ValidationError, OutputParserException, ValueError) as exc:
                 error = str(exc)[:1000]
@@ -182,17 +184,18 @@ class _Nodes:
             limitations=[f"Final report failed validation: {error}"],
             confidence="low",
         )
-        return fallback.model_dump(mode="json")
+        return {**fallback.model_dump(mode="json"), "report_attempts": FINAL_REPORT_ATTEMPTS}
 
     def verify(self, state: AgentState) -> dict[str, Any]:
-        result = AnalysisResult.model_validate({k: state[k] for k in AnalysisResult.model_fields if k in state})
-        result = verify_result(result, state.get("tool_outputs", []))
+        drafted = AnalysisResult.model_validate({k: state[k] for k in AnalysisResult.model_fields if k in state})
+        result = verify_result(drafted, state.get("tool_outputs", []))
+        removed = len(drafted.findings) - len(result.findings)
         workspace = self._workspace(state)
         extra = [state["stop_reason"]] if state.get("stop_reason") else []
         result = result.model_copy(
             update={"charts": workspace.chart_paths(), "limitations": [*result.limitations, *extra]}
         )
-        return result.model_dump(mode="json")
+        return {**result.model_dump(mode="json"), "removed_findings": removed}
 
     def _workspace(self, state: AgentState) -> Workspace:
         return Workspace.open(Path(state["workspace_root"]), timeout_s=self.settings.tool_timeout_s)
