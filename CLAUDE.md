@@ -19,8 +19,10 @@ input/output contract is the top priority.
 ```
 src/analytics_agent/
   schemas.py     # Pydantic v2 models: AnalysisRequest, AnalysisResult, Finding
-  tools.py       # profile_dataset, run_sql, run_python, make_chart
+  tools.py       # Workspace + profile_dataset, run_sql, run_python, make_chart
   sandbox.py     # isolated code execution (subprocess, timeout, no network)
+  verify.py      # drops findings whose numbers don't appear in tool output
+  config.py      # Settings from env vars / .env
   prompts.py     # system prompt
   graph.py       # build_agent() -> compiled LangGraph graph
 evals/
@@ -46,8 +48,9 @@ tests/
 - `confidence`: low / medium / high
 
 ## Tools
-- `profile_dataset(path)`: schema, dtypes, row count, null counts, basic stats, a few
+- `profile_dataset(table)`: schema, dtypes, row count, null counts, basic stats, a few
   sample rows. Always call this first. Never load full datasets into the model's context.
+  Each input file becomes a table (each Excel sheet its own table), named from the file.
 - `run_sql(query)`: DuckDB over the loaded files. Prefer this for aggregations.
 - `run_python(code)`: pandas/numpy/scipy in the sandbox. Output is truncated to a size limit.
 - `make_chart(code)`: matplotlib; saves a PNG to an output directory and returns the path.

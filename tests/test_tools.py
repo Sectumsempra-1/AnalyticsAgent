@@ -204,3 +204,9 @@ def test_sql_truncates_long_cells(ws: Workspace) -> None:
     out = ws.run_sql("SELECT note FROM sales WHERE order_id = 3")
     assert LONG_NOTE not in out
     assert "x" * 60 + "..." in out
+
+
+def test_workspace_reopens_from_disk(ws: Workspace) -> None:
+    reopened = Workspace.open(ws.root)
+    assert reopened.tables == ws.tables
+    assert "1395.5" in reopened.run_sql("SELECT SUM(amount) FROM sales")

@@ -16,11 +16,19 @@ dependencies = [
     "openpyxl>=3.1",
     "matplotlib>=3.8",
     "scipy>=1.11",  # used by model-written analysis code in the sandbox
+    "langgraph==1.2.19",
+    "langchain>=1.4,<2",  # init_chat_model: provider-agnostic model loading
+    "langchain-core>=1.7,<2",
+    "python-dotenv>=1",
 ]
 
 [project.optional-dependencies]
+# Install the provider package for the model you use, e.g. pip install -e ".[ollama]"
+ollama = ["langchain-ollama>=1.1,<2"]
+openai = ["langchain-openai>=1.7,<2"]
 dev = [
     "pytest>=8",
+    "langchain-ollama>=1.1,<2",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -28,3 +36,9 @@ packages = ["src/analytics_agent"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["smoke: end-to-end runs against the real configured model (slow)"]
+addopts = "-m 'not smoke'"
+filterwarnings = [
+    # langsmith (a langchain dependency) uses an API deprecated in Python 3.14; not our code
+    "ignore:'asyncio.iscoroutinefunction' is deprecated:DeprecationWarning:langsmith",
+]

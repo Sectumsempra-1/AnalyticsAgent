@@ -11,7 +11,7 @@ import os
 import re
 import stat
 from collections.abc import Callable, Iterable, Sequence
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass
 from functools import cache
 from pathlib import Path
 
@@ -26,6 +26,7 @@ MAX_CELL_CHARS = 60
 _RESERVED_NAMES = frozenset({"pd", "np", "plt", "tables", "sys", "os"})
 _MANIFEST_MARKER = "__MANIFEST__"
 _CHART_MARKER = "__CHART_SAVED__"
+_INDEX_FILE = "workspace.json"
 
 
 class DatasetLoadError(RuntimeError):
@@ -53,7 +54,6 @@ class Workspace:
     tables: dict[str, TableInfo]
     timeout_s: float = DEFAULT_TIMEOUT_S
     max_output_chars: int = DEFAULT_MAX_OUTPUT_CHARS
-    _chart_count: int = field(default=0, repr=False)
 
     @property
     def scratch_dir(self) -> Path:
@@ -82,7 +82,28 @@ class Workspace:
             d.mkdir(parents=True, exist_ok=True)
         manifest = _convert_sources(sources, data_dir, root / "scratch")
         tables = _register_tables(manifest, data_dir)
+        _write_index(root, tables)
         return cls(root=root, tables=tables, timeout_s=timeout_s, max_output_chars=max_output_chars)
+
+    @classmethod
+    def open(
+        cls,
+        root: Path,
+        *,
+        timeout_s: float = DEFAULT_TIMEOUT_S,
+        max_output_chars: int = DEFAULT_MAX_OUTPUT_CHARS,
+    ) -> "Workspace":
+        """Reopen a workspace created earlier (so callers only need to keep its path)."""
+        root = Path(root).resolve()
+        entries = json.loads((root / _INDEX_FILE).read_text(encoding="utf-8"))
+        tables = {
+            e["name"]: TableInfo(**{**e, "path": Path(e["path"]), "notes": tuple(e["notes"])}) for e in entries
+        }
+        return cls(root=root, tables=tables, timeout_s=timeout_s, max_output_chars=max_output_chars)
+
+    def chart_paths(self) -> list[str]:
+        """Paths of all charts saved so far, in creation order."""
+        return [str(p) for p in sorted(self.charts_dir.glob("chart_*.png"))]
 
     def describe_tables(self) -> str:
         """One line per table, for the system prompt."""
@@ -115,8 +136,7 @@ class Workspace:
         return self._run(self._data_header() + _user_code_block(code))
 
     def make_chart(self, code: str) -> str:
-        self._chart_count += 1
-        path = self.charts_dir / f"chart_{self._chart_count:02d}.png"
+        path = self.charts_dir / f"chart_{len(self.chart_paths()) + 1:02d}.png"
         script = (
             _CHART_HEADER.format(mplconfig=str(self.root / "mplconfig"))
             + self._data_header()
@@ -261,6 +281,11 @@ def _register_tables(manifest: list[dict[str, object]], data_dir: Path) -> dict[
             notes=tuple(entry["notes"]),  # type: ignore[arg-type]
         )  # fmt: skip
     return tables
+
+
+def _write_index(root: Path, tables: dict[str, TableInfo]) -> None:
+    entries = [{**asdict(t), "path": str(t.path), "notes": list(t.notes)} for t in tables.values()]
+    (root / _INDEX_FILE).write_text(json.dumps(entries, indent=2), encoding="utf-8")
 
 
 def _user_code_block(code: str) -> str:
