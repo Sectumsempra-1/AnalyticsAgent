@@ -1,0 +1,82 @@
+{
+  "score": {
+    "case_id": "small_sample",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "Narjis review count",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "narjis",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "sample / only 4 / few / limited / 4 ratings / 4 reviews",
+        "passed": true
+      },
+      {
+        "kind": "forbid",
+        "label": "does not state '$'",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 26.409948200001963,
+    "steps": 3,
+    "tokens": 6636,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "low",
+    "summary": "Narjis has the highest average customer rating at 4.5, but with only 4 ratings. Olaya ranks second with an average of 4.04 based on 140 ratings.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Narjis has the highest average customer rating at 4.5, but with only 4 ratings. Olaya ranks second with an average of 4.04 based on 140 ratings.",
+    "findings": [
+      {
+        "statement": "Narjis has the highest average customer rating among all stores.",
+        "evidence": "store avg_rating count Narjis 4.500000 4 Olaya 4.035714 140 Malqa 3.881818 110 Rawdah 3.726316 95",
+        "method": "SQL aggregation with GROUP BY and AVG()",
+        "code": "SELECT store, AVG(rating) as avg_rating, COUNT(*) as count FROM store_ratings GROUP BY store ORDER BY avg_rating DESC"
+      },
+      {
+        "statement": "Olaya has the second highest average rating with a large sample size.",
+        "evidence": "store avg_rating count Olaya 4.035714 140",
+        "method": "SQL aggregation with GROUP BY and AVG()",
+        "code": "SELECT store, AVG(rating) as avg_rating, COUNT(*) as count FROM store_ratings GROUP BY store ORDER BY avg_rating DESC"
+      },
+      {
+        "statement": "The dataset contains duplicate rows that may affect analysis.",
+        "evidence": "Duplicate rows: 337",
+        "method": "Profile dataset inspection",
+        "code": "profile_dataset on store_ratings table"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "337 duplicate rows out of 349 total rows (96.6% duplicates)",
+      "No null values in either column",
+      "Rating is integer type with values ranging from 2 to 5"
+    ],
+    "assumptions": [
+      "Average rating calculated as simple mean without weighting by sample size",
+      "All ratings are treated equally regardless of store popularity"
+    ],
+    "limitations": [
+      "Narjis has only 4 ratings, making its average highly sensitive to outliers and less statistically reliable",
+      "Small sample sizes for Narjis (n=4) and potentially other stores may not represent true customer sentiment",
+      "Duplicate rows in the dataset could indicate data collection issues or intentional repetition"
+    ],
+    "confidence": "low"
+  }
+}

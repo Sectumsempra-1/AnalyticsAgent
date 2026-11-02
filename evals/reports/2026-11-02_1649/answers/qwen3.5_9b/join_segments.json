@@ -1,0 +1,77 @@
+{
+  "score": {
+    "case_id": "join_segments",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "corporate revenue",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "corporate",
+        "passed": true
+      },
+      {
+        "kind": "forbid",
+        "label": "does not state '$'",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 31.669576200001757,
+    "steps": 4,
+    "tokens": 9792,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "The corporate customer segment generates the most revenue at 210905.52 from 271 orders. Retail is second with 162517.99 from 469 orders, and government is third with 20909.96 from 60 orders.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "The corporate customer segment generates the most revenue at 210905.52 from 271 orders. Retail is second with 162517.99 from 469 orders, and government is third with 20909.96 from 60 orders.",
+    "findings": [
+      {
+        "statement": "Corporate segment generates the highest revenue among all customer segments.",
+        "evidence": "corporate 210905.52 271",
+        "method": "SQL aggregation with JOIN between orders and customers tables, grouped by segment and ordered by total_revenue DESC",
+        "code": "SELECT c.segment, SUM(o.order_value) as total_revenue, COUNT(o.order_id) as order_count FROM orders o JOIN customers c ON o.customer_id = c.customer_id GROUP BY c.segment ORDER BY total_revenue DESC"
+      },
+      {
+        "statement": "Retail segment is the second highest revenue generator with 162517.99 from 469 orders.",
+        "evidence": "retail 162517.99 469",
+        "method": "SQL aggregation with JOIN between orders and customers tables, grouped by segment and ordered by total_revenue DESC",
+        "code": "SELECT c.segment, SUM(o.order_value) as total_revenue, COUNT(o.order_id) as order_count FROM orders o JOIN customers c ON o.customer_id = c.customer_id GROUP BY c.segment ORDER BY total_revenue DESC"
+      },
+      {
+        "statement": "Government segment generates the lowest revenue with 20909.96 from 60 orders.",
+        "evidence": "government 20909.96 60",
+        "method": "SQL aggregation with JOIN between orders and customers tables, grouped by segment and ordered by total_revenue DESC",
+        "code": "SELECT c.segment, SUM(o.order_value) as total_revenue, COUNT(o.order_id) as order_count FROM orders o JOIN customers c ON o.customer_id = c.customer_id GROUP BY c.segment ORDER BY total_revenue DESC"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "orders table: no nulls (0%), no duplicates (0 rows)",
+      "customers table: no nulls (0%), no duplicates (0 rows)",
+      "order_value range is wide: min=11.99, max=2118.47",
+      "segment distribution: retail (70 customers), corporate (40 customers), government (10 customers)"
+    ],
+    "assumptions": [
+      "order_value represents revenue accurately",
+      "customer_id is the correct foreign key linking orders to customers"
+    ],
+    "limitations": [
+      "No currency symbol in data, so amounts are reported as plain numbers",
+      "Analysis does not account for potential outliers in order_value (min=11.99, max=2118.47)"
+    ],
+    "confidence": "high"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "score": {
+    "case_id": "salary_outlier",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "median salary",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "outlier / extreme / skew",
+        "passed": true
+      },
+      {
+        "kind": "forbid",
+        "label": "does not state '$'",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 46.032664600003045,
+    "steps": 4,
+    "tokens": 10331,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "medium",
+    "summary": "The typical monthly salary at this company is 13,985 SAR (median), as measured by the median which is not affected by outliers.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "The typical monthly salary at this company is 13,985 SAR (median), as measured by the median which is not affected by outliers.",
+    "findings": [
+      {
+        "statement": "The overall median monthly salary across all employees is 13,985 SAR.",
+        "evidence": "monthly_salary [float64] nulls=0 (0.0%) distinct=178 min=8870 max=950000 mean=18727.8 median=13985 std=66227.6",
+        "method": "Dataset profiling from profile_dataset tool output",
+        "code": "profile_dataset on salaries table"
+      },
+      {
+        "statement": "Department medians cluster between 13,715 and 14,405 SAR, indicating consistent typical salaries across departments.",
+        "evidence": "ops: median=14405.0; hr: median=14325.0; it: median=13810.0; sales: median=13715.0",
+        "method": "SQL aggregation by department using run_sql tool",
+        "code": "SELECT department, COUNT(*) as count, AVG(monthly_salary) as avg_salary, MEDIAN(monthly_salary) as median_salary, MIN(monthly_salary) as min_salary, MAX(monthly_salary) as max_salary FROM salaries GROUP BY department ORDER BY avg_salary DESC"
+      },
+      {
+        "statement": "One employee in ops department earns 950,000 SAR, which is an extreme outlier inflating the overall mean salary.",
+        "evidence": "ops: max=950000.0; hr: max=19590.0; it: max=18460.0; sales: max=19990.0",
+        "method": "SQL aggregation by department using run_sql tool",
+        "code": "SELECT department, COUNT(*) as count, AVG(monthly_salary) as avg_salary, MEDIAN(monthly_salary) as median_salary, MIN(monthly_salary) as min_salary, MAX(monthly_salary) as max_salary FROM salaries GROUP BY department ORDER BY avg_salary DESC"
+      },
+      {
+        "statement": "The mean salary (18,727.8 SAR) is significantly higher than the median (13,985 SAR) due to outliers.",
+        "evidence": "mean=18727.8 median=13985",
+        "method": "Dataset profiling from profile_dataset tool output",
+        "code": "profile_dataset on salaries table"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No null values in any column (0% nulls across all columns)",
+      "No duplicate rows (0 duplicates)",
+      "One extreme outlier: employee_id 200 in ops department earns 950,000 SAR",
+      "High standard deviation in monthly_salary (66,227.6) indicates salary distribution is skewed by outliers"
+    ],
+    "assumptions": [
+      "Median is used as the measure of 'typical' salary because it is robust to outliers",
+      "All employees are included in the analysis without filtering criteria"
+    ],
+    "limitations": [
+      "Sample size of 200 employees may not represent the entire company population",
+      "One department (ops) has an extreme outlier that significantly affects mean-based statistics",
+      "Only salary data is available; no information on employee tenure, role level, or other factors affecting pay"
+    ],
+    "confidence": "medium"
+  }
+}

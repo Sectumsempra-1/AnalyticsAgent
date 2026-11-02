@@ -1,0 +1,64 @@
+{
+  "score": {
+    "case_id": "messy_numbers",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "total invoiced",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "text / string / format / type / $ / currency symbol",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "blank / missing / empty / null",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 16.6137662000001,
+    "steps": 3,
+    "tokens": 5878,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "medium",
+    "summary": "The total invoice amount is 202682.05.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "The total invoice amount is 202682.05.",
+    "findings": [
+      {
+        "statement": "The sum of all non-null invoice amounts in the invoices table equals 202682.05.",
+        "evidence": "total_amount: 202682.05",
+        "method": "SQL aggregation with SUM after cleaning string values by removing '$' and ',' characters",
+        "code": "SELECT \n    SUM(CAST(REPLACE(REPLACE(amount, '$', ''), ',', '') AS DOUBLE)) as total_amount\nFROM invoices\nWHERE amount IS NOT NULL AND amount != ''"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "4 null values in the amount column (5% of rows)",
+      "Amounts stored as strings with '$' and ',' formatting requiring cleaning before numeric operations",
+      "No duplicate rows found"
+    ],
+    "assumptions": [
+      "All non-null amounts are valid invoice amounts to be summed",
+      "The currency unit is consistent across all records (implied by the '$' prefix)"
+    ],
+    "limitations": [
+      "4 missing amount values excluded from total calculation",
+      "String-based amount column requires parsing before numeric operations, which may introduce rounding errors if not handled carefully"
+    ],
+    "confidence": "medium"
+  }
+}

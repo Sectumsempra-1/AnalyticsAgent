@@ -1,0 +1,85 @@
+{
+  "score": {
+    "case_id": "ab_test",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "conversion rate A",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "conversion rate B",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "significant",
+        "passed": true
+      },
+      {
+        "kind": "forbid",
+        "label": "does not state '$'",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 81.98099469999943,
+    "steps": 4,
+    "tokens": 21942,
+    "report_attempts": 3,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "Variant B converted better than variant A, and the difference is statistically significant.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Variant B converted better than variant A, and the difference is statistically significant.",
+    "findings": [
+      {
+        "statement": "Variant B had a higher conversion rate than variant A.",
+        "evidence": "Conversion rate A: 0.098667; Conversion rate B: 0.129667; Difference (B - A): 0.031000",
+        "method": "Calculated conversion rates by grouping users by variant and computing the proportion of converted users.",
+        "code": "variant_stats = df.groupby('variant').agg(\n    converted_count=('converted', 'sum'),\n    total_users=('user_id', 'count')\n).reset_index()\n\nvariant_stats['conversion_rate'] = variant_stats['converted_count'] / variant_stats['total_users']"
+      },
+      {
+        "statement": "The difference in conversion rates is statistically significant at the 0.05 level.",
+        "evidence": "Z-statistic: 3.7754; P-value (two-sided): 1.597584e-04; P-value (one-sided, B > A): 7.987922e-05",
+        "method": "Two-proportion z-test comparing conversion rates between variants.",
+        "code": "p_pooled = (df[df['variant'] == 'A']['converted'].sum() + df[df['variant'] == 'B']['converted'].sum()) / (n_a + n_b)\nse = math.sqrt(p_pooled * (1 - p_pooled) * (1/n_a + 1/n_b))\nz_stat = (p_b - p_a) / se\np_value_two_sided = 2 * (1 - stats.norm.cdf(abs(z_stat)))"
+      },
+      {
+        "statement": "The 95% confidence interval for the difference in conversion rates does not include zero.",
+        "evidence": "95% CI for difference (B - A): (0.014925, 0.047075)",
+        "method": "Normal approximation confidence interval for the difference in proportions.",
+        "code": "diff = p_b - p_a\nse_diff = math.sqrt(p_a * (1-p_a)/n_a + p_b * (1-p_b)/n_b)\nci_lower = diff - 1.96 * se_diff\nci_upper = diff + 1.96 * se_diff"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No null values in any column (nulls=0 for all columns)",
+      "No duplicate rows (Duplicate rows: 0)",
+      "All columns have appropriate types: user_id is int64, variant is str with 2 distinct values, converted is int64 with values 0 or 1",
+      "Balanced sample sizes: 3,000 users per variant"
+    ],
+    "assumptions": [
+      "Users are randomly assigned to variants (no selection bias)",
+      "Conversion events are independent across users",
+      "The normal approximation for the z-test is valid given large sample sizes (n=3,000 per group)",
+      "No significant outliers or data manipulation affecting conversion counts"
+    ],
+    "limitations": [
+      "Analysis assumes no external factors influenced conversions during the test period",
+      "Results apply only to the population represented by this dataset",
+      "Statistical significance does not guarantee practical business impact beyond the measured difference"
+    ],
+    "confidence": "high"
+  }
+}

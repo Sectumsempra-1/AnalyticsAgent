@@ -1,0 +1,65 @@
+{
+  "score": {
+    "case_id": "excel_budget",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "marketing overspend",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "marketing",
+        "passed": true
+      },
+      {
+        "kind": "forbid",
+        "label": "does not state '$'",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 22.549296699999104,
+    "steps": 3,
+    "tokens": 7540,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "Marketing department overspent its budget by the largest amount, with an overspend of 152,200.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Marketing department overspent its budget by the largest amount, with an overspend of 152,200.",
+    "findings": [
+      {
+        "statement": "Marketing overspent its budget by 152,200, which is the largest overspend among all departments.",
+        "evidence": "department: marketing, budget: 491000, actual: 643200, overspend: 152200",
+        "method": "SQL join and subtraction to calculate overspend per department, then ordered by overspend descending",
+        "code": "SELECT b.department, b.budget, a.actual, (a.actual - b.budget) AS overspend FROM budget_2025_budget b JOIN budget_2025_actual a ON b.department = a.department ORDER BY overspend DESC"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No null values in either table",
+      "No duplicate rows in either table",
+      "All department names are strings with no type issues",
+      "All budget and actual values are integers"
+    ],
+    "assumptions": [
+      "Budget and actual figures are for the same fiscal year (2025)",
+      "Overspend is calculated as actual minus budget (positive = overspent, negative = underspent)"
+    ],
+    "limitations": [
+      "Only 8 departments in the dataset",
+      "No information on whether these are the only departments or a sample of all departments"
+    ],
+    "confidence": "high"
+  }
+}

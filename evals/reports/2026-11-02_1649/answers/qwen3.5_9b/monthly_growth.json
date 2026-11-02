@@ -1,0 +1,55 @@
+{
+  "score": {
+    "case_id": "monthly_growth",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "Mar->Apr change %",
+        "passed": true
+      },
+      {
+        "kind": "forbid",
+        "label": "does not state '$'",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 52.32641770000191,
+    "steps": 7,
+    "tokens": 31452,
+    "report_attempts": 3,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "Total revenue increased by 4.31% from March 2025 to April 2025.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Total revenue increased by 4.31% from March 2025 to April 2025.",
+    "findings": [
+      {
+        "statement": "March 2025 total revenue was 51929.10",
+        "evidence": "month  total_revenue\\nApril 2025       54166.66\\nMarch 2025       51929.10",
+        "method": "SQL aggregation grouped by month for March and April 2025",
+        "code": "SELECT \\n    CASE \\n        WHEN date >= '2025-03-01' AND date < '2025-04-01' THEN 'March 2025'\\n        WHEN date >= '2025-04-01' AND date < '2025-05-01' THEN 'April 2025'\\n    END as month,\\n    SUM(revenue) as total_revenue\\nFROM monthly_revenue\\nWHERE date >= '2025-03-01' AND date < '2025-05-01'\\nGROUP BY \\n    CASE \\n        WHEN date >= '2025-03-01' AND date < '2025-04-01' THEN 'March 2025'\\n        WHEN date >= '2025-04-01' AND date < '2025-05-01' THEN 'April 2025'\\n    END\\nORDER BY month"
+      },
+      {
+        "statement": "April 2025 total revenue was 54166.66",
+        "evidence": "month  total_revenue\\nApril 2025       54166.66\\nMarch 2025       51929.10",
+        "method": "SQL aggregation grouped by month for March and April 2025",
+        "code": "SELECT \\n    CASE \\n        WHEN date >= '2025-03-01' AND date < '2025-04-01' THEN 'March 2025'\\n        WHEN date >= '2025-04-01' AND date < '202"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [],
+    "assumptions": [],
+    "limitations": [],
+    "confidence": "high"
+  }
+}
