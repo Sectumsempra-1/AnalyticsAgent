@@ -44,7 +44,20 @@ The default model is a free local one, served by [Ollama](https://ollama.com):
 ollama pull qwen3.5:9b            # ~6.6 GB; runs on an 8 GB GPU
 ```
 
-Run one analysis:
+### From the command line
+
+```bash
+analytics-agent ask "Which region has the highest total sales?" evals/datasets/sales_by_region.csv
+analytics-agent ask "Compare Q1 and Q2 spending" budget.xlsx --context "amounts are in SAR"
+analytics-agent ask "..." a.csv b.parquet --show-code      # also print the code behind each finding
+analytics-agent ask "..." data.csv --json                  # raw AnalysisResult JSON
+```
+
+Progress (each tool call) is printed while the agent works, followed by the answer,
+findings, data-quality notes, limitations and chart paths. Run `analytics-agent ask --help`
+for every option. Exit code: `0` on success, `2` on bad input, configuration or model errors.
+
+### From Python
 
 ```python
 from analytics_agent import AnalysisRequest, AnalysisResult
@@ -357,6 +370,7 @@ src/analytics_agent/
   verify.py    # removes findings whose numbers are not in tool output
   prompts.py   # system and report prompts
   config.py    # Settings from env vars / .env
+  cli.py       # the analytics-agent command
 evals/         # datasets, cases.jsonl, run_evals.py, scoring, PDF report
 tests/         # pytest suite; fake_model.py is the scripted model
 ```

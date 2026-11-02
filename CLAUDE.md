@@ -25,6 +25,7 @@ src/analytics_agent/
   config.py      # Settings from env vars / .env
   prompts.py     # system prompt
   graph.py       # build_agent() -> compiled LangGraph graph
+  cli.py         # analytics-agent ask "question" files...
 evals/
   datasets/      # synthetic datasets with planted, known answers
   cases.jsonl    # question + expected findings per dataset

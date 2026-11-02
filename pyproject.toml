@@ -23,6 +23,9 @@ dependencies = [
     "python-dotenv>=1",
 ]
 
+[project.scripts]
+analytics-agent = "analytics_agent.cli:main"
+
 [project.optional-dependencies]
 # Install the provider package for the model you use, e.g. pip install -e ".[ollama]"
 ollama = ["langchain-ollama>=1.1,<2"]
