@@ -1,0 +1,61 @@
+{
+  "score": {
+    "case_id": "monthly_growth",
+    "model": "gpt-oss:20b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "Mar->Apr change %",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 71.04489429999921,
+    "steps": 7,
+    "tokens": 24772,
+    "report_attempts": 2,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "Revenue increased by 4.31% from March\u202f2025 to April\u202f2025.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Revenue increased by 4.31% from March\u202f2025 to April\u202f2025.",
+    "findings": [
+      {
+        "statement": "Total revenue for March\u202f2025 was $51,929.10.",
+        "evidence": "march_total\n     51929.1",
+        "method": "SQL aggregation",
+        "code": "SELECT SUM(total) as march_total FROM (SELECT date, SUM(revenue) as total FROM monthly_revenue WHERE date LIKE '2025-03-%' GROUP BY date) t;"
+      },
+      {
+        "statement": "Total revenue for April\u202f2025 was $54,166.66.",
+        "evidence": "april_total\n    54166.66",
+        "method": "SQL aggregation",
+        "code": "SELECT SUM(total) as april_total FROM (SELECT date, SUM(revenue) as total FROM monthly_revenue WHERE date LIKE '2025-04-%' GROUP BY date) t;"
+      },
+      {
+        "statement": "The percentage change in revenue from March to April 2025 is 4.31%.",
+        "evidence": "4.308874985316527",
+        "method": "Python calculation",
+        "code": "march=51929.1\napril=54166.66\npct=(april-march)/march*100\nprint(pct)"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "nulls: None detected in date and revenue columns.",
+      "duplicates: None detected.",
+      "outliers: None flagged; revenue range 13.26\u2013602.65.",
+      "type_problems: All columns have correct types (date string, revenue float)."
+    ],
+    "assumptions": [],
+    "limitations": [],
+    "confidence": "high"
+  }
+}

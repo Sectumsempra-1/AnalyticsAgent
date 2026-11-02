@@ -1,0 +1,60 @@
+{
+  "score": {
+    "case_id": "small_sample",
+    "model": "qwen3:8b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "Narjis review count",
+        "passed": false
+      },
+      {
+        "kind": "mention",
+        "label": "narjis",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "sample / only 4 / few / limited / 4 ratings / 4 reviews",
+        "passed": false
+      }
+    ],
+    "error": null,
+    "seconds": 57.604103900000155,
+    "steps": 3,
+    "tokens": 8911,
+    "report_attempts": 2,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "The store with the highest average customer rating is **Narjis** with an average rating of **4.5**.",
+    "score": 0.5,
+    "passed": false
+  },
+  "result": {
+    "summary": "The store with the highest average customer rating is **Narjis** with an average rating of **4.5**.",
+    "findings": [
+      {
+        "statement": "Narjis has the highest average rating.",
+        "evidence": "4.5",
+        "method": "SQL aggregation",
+        "code": "SELECT store, AVG(rating) AS avg_rating FROM store_ratings GROUP BY store ORDER BY avg_rating DESC LIMIT 1;"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "337 duplicate rows found in the dataset"
+    ],
+    "assumptions": [
+      "The SQL aggregation correctly accounts for duplicate entries in the ratings"
+    ],
+    "limitations": [
+      "The analysis does not address potential rating inconsistencies or external factors affecting ratings"
+    ],
+    "confidence": "high"
+  }
+}

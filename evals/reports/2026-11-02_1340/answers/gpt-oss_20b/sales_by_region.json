@@ -1,0 +1,54 @@
+{
+  "score": {
+    "case_id": "sales_by_region",
+    "model": "gpt-oss:20b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "north total",
+        "passed": false
+      },
+      {
+        "kind": "mention",
+        "label": "north",
+        "passed": false
+      },
+      {
+        "kind": "quality",
+        "label": "duplicate",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "null / missing / empty / blank",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 107.327500899999,
+    "steps": 6,
+    "tokens": 11904,
+    "report_attempts": 2,
+    "removed_findings": 0,
+    "confidence": "low",
+    "summary": "The agent ran its analysis but could not produce a valid structured report.",
+    "score": 0.6,
+    "passed": false
+  },
+  "result": {
+    "summary": "The agent ran its analysis but could not produce a valid structured report.",
+    "findings": [],
+    "charts": [],
+    "data_quality_notes": [],
+    "assumptions": [],
+    "limitations": [
+      "Final report failed validation: 2 validation errors for AnalysisResult\ndata_quality_notes.0\n  Input should be a valid string [type=string_type, input_value={'count': 5, 'type': 'duplicate rows'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/string_type\ndata_quality_notes.1\n  Input should be a valid string [type=string_type, input_value={'column': 'region', 'count': 12, 'type': 'nulls'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/string_type"
+    ],
+    "confidence": "low"
+  }
+}

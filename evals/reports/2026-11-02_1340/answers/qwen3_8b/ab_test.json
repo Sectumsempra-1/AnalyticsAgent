@@ -1,0 +1,54 @@
+{
+  "score": {
+    "case_id": "ab_test",
+    "model": "qwen3:8b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "conversion rate A",
+        "passed": false
+      },
+      {
+        "kind": "number",
+        "label": "conversion rate B",
+        "passed": false
+      },
+      {
+        "kind": "mention",
+        "label": "significant",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 75.84808160000011,
+    "steps": 3,
+    "tokens": 10553,
+    "report_attempts": 2,
+    "removed_findings": 2,
+    "confidence": "low",
+    "summary": "Variant B converts better than variant A with statistically significant results.",
+    "score": 0.5,
+    "passed": false
+  },
+  "result": {
+    "summary": "Variant B converts better than variant A with statistically significant results.",
+    "findings": [],
+    "charts": [],
+    "data_quality_notes": [],
+    "assumptions": [
+      "Independent samples",
+      "Approximately normal distribution of conversion rates"
+    ],
+    "limitations": [
+      "Assumes equal variance between groups",
+      "Removed finding 'Variant B has a higher conversion rate than variant A.': figures not found in tool output (12.97, 9.87).",
+      "Removed finding 'The difference in conversion rates is 3.1 percentage points.': figures not found in tool output (3.1, 0.031)."
+    ],
+    "confidence": "low"
+  }
+}

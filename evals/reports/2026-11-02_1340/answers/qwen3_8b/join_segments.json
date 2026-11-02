@@ -1,0 +1,71 @@
+{
+  "score": {
+    "case_id": "join_segments",
+    "model": "qwen3:8b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "corporate revenue",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "corporate",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 54.731676000000334,
+    "steps": 4,
+    "tokens": 11224,
+    "report_attempts": 2,
+    "removed_findings": 0,
+    "confidence": "medium",
+    "summary": "The customer segment that generates the most revenue is **corporate** with $210,905.52 in total revenue.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "The customer segment that generates the most revenue is **corporate** with $210,905.52 in total revenue.",
+    "findings": [
+      {
+        "statement": "Corporate segment has the highest revenue",
+        "evidence": "210905.52",
+        "method": "SQL aggregation",
+        "code": "SELECT c.segment, SUM(o.order_value) AS total_revenue FROM customers c JOIN orders o ON c.customer_id = o.customer_id GROUP BY c.segment ORDER BY total_revenue DESC;"
+      },
+      {
+        "statement": "Retail segment generates $162,517.99",
+        "evidence": "162517.99",
+        "method": "SQL aggregation",
+        "code": "SELECT c.segment, SUM(o.order_value) AS total_revenue FROM customers c JOIN orders o ON c.customer_id = o.customer_id GROUP BY c.segment ORDER BY total_revenue DESC;"
+      },
+      {
+        "statement": "Government segment generates $20,909.96",
+        "evidence": "20909.96",
+        "method": "SQL aggregation",
+        "code": "SELECT c.segment, SUM(o.order_value) AS total_revenue FROM customers c JOIN orders o ON c.customer_id = o.customer_id GROUP BY c.segment ORDER BY total_revenue DESC;"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "customers: no nulls, duplicates, or type issues",
+      "orders: no nulls, duplicates, or type issues",
+      "customer_id in orders matches customers table"
+    ],
+    "assumptions": [
+      "customer_id in orders correctly maps to customers table",
+      "order_value is accurately recorded"
+    ],
+    "limitations": [
+      "government segment has only 10 customers (small sample)",
+      "no data on other potential revenue drivers"
+    ],
+    "confidence": "medium"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "score": {
+    "case_id": "correlation_trap",
+    "model": "gpt-oss:20b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": false
+      }
+    ],
+    "error": "ResponseError: error parsing tool call: raw='{\"summary\":\"Ice\u2011cream sales', err=unexpected end of JSON input (status code: -1)",
+    "seconds": 106.21831479999855,
+    "steps": 8,
+    "tokens": 20917,
+    "report_attempts": 0,
+    "removed_findings": 0,
+    "confidence": null,
+    "summary": "",
+    "score": 0.0,
+    "passed": false
+  },
+  "result": null
+}

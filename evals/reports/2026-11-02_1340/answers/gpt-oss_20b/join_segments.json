@@ -1,0 +1,55 @@
+{
+  "score": {
+    "case_id": "join_segments",
+    "model": "gpt-oss:20b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "corporate revenue",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "corporate",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 46.183839699999226,
+    "steps": 4,
+    "tokens": 7708,
+    "report_attempts": 2,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "Corporate segment generates the most revenue: $210,905.52.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Corporate segment generates the most revenue: $210,905.52.",
+    "findings": [
+      {
+        "statement": "Corporate segment has the highest total revenue.",
+        "evidence": "segment corporate total_revenue 210905.52",
+        "method": "SQL aggregation",
+        "code": "SELECT c.segment, SUM(o.order_value) AS total_revenue FROM orders o JOIN customers c ON o.customer_id = c.customer_id GROUP BY c.segment ORDER BY total_revenue DESC LIMIT 1"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "orders: no nulls, no duplicates; customers: no nulls, no duplicates"
+    ],
+    "assumptions": [
+      "All orders have valid customer_id linking to customers table"
+    ],
+    "limitations": [
+      "Revenue calculated only from order_value; does not account for returns or discounts"
+    ],
+    "confidence": "high"
+  }
+}

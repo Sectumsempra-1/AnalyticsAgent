@@ -1,0 +1,70 @@
+{
+  "score": {
+    "case_id": "messy_numbers",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "total invoiced",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "text / string / format / type / $ / currency symbol",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "blank / missing / empty / null",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 23.698173400000087,
+    "steps": 3,
+    "tokens": 6640,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "medium",
+    "summary": "Total invoice amount is $202,682.05 based on 76 valid amounts out of 80 rows.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Total invoice amount is $202,682.05 based on 76 valid amounts out of 80 rows.",
+    "findings": [
+      {
+        "statement": "The total invoice amount across all valid invoices is $202,682.05.",
+        "evidence": "Total invoice amount: $202682.05",
+        "method": "Python data cleaning and summation after removing currency symbols and commas from the amount column",
+        "code": "import pandas as pd\n\ndf = tables['invoices']\n\ndf['amount_clean'] = df['amount'].astype(str).str.replace('$', '', regex=False).str.replace(',', '', regex=False)\n\ntotal_amount = df['amount_clean'].dropna().astype(float).sum()\n\nprint(f\"Total invoice amount: ${total_amount:.2f}\")"
+      },
+      {
+        "statement": "4 out of 80 rows (5%) have null/missing amounts that were excluded from the total.",
+        "evidence": "Number of valid amounts: 76, Number of null amounts: 4",
+        "method": "Counted non-null and null values in cleaned amount column",
+        "code": "print(f\"Number of valid amounts: {df['amount_clean'].notna().sum()}\")\nprint(f\"Number of null amounts: {df['amount_clean'].isna().sum()}\")"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "4 rows (5%) have null/missing amount values",
+      "No duplicate rows found",
+      "Amount column stored as string with '$' and ',' characters requiring cleaning"
+    ],
+    "assumptions": [
+      "Null amounts were excluded from the total rather than imputed",
+      "All non-null amounts are valid invoice amounts"
+    ],
+    "limitations": [
+      "Cannot determine if null amounts represent missing data or zero-value invoices",
+      "No information on why 5% of invoices have missing amounts"
+    ],
+    "confidence": "medium"
+  }
+}

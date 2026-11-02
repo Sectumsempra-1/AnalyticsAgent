@@ -1,0 +1,73 @@
+{
+  "score": {
+    "case_id": "salary_outlier",
+    "model": "qwen3:8b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "median salary",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "outlier / extreme / skew",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 44.38928620000024,
+    "steps": 2,
+    "tokens": 7527,
+    "report_attempts": 2,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "The typical monthly salary is 13,985 SAR (median), as the distribution is skewed by an outlier of 950,000 SAR.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "The typical monthly salary is 13,985 SAR (median), as the distribution is skewed by an outlier of 950,000 SAR.",
+    "findings": [
+      {
+        "statement": "The median monthly salary is 13,985 SAR.",
+        "evidence": "13985",
+        "method": "SQL aggregation using PERCENTILE_CONT(0.5)",
+        "code": "SELECT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY monthly_salary) FROM salaries;"
+      },
+      {
+        "statement": "The mean monthly salary is 18,727.8 SAR.",
+        "evidence": "18727.8",
+        "method": "SQL aggregation",
+        "code": "SELECT AVG(monthly_salary) FROM salaries;"
+      },
+      {
+        "statement": "Monthly salaries show high variability (standard deviation of 66,227.6 SAR).",
+        "evidence": "66227.6",
+        "method": "SQL statistical function",
+        "code": "SELECT STDDEV(monthly_salary) FROM salaries;"
+      },
+      {
+        "statement": "An outlier of 950,000 SAR exists in the dataset.",
+        "evidence": "950000",
+        "method": "Max value inspection",
+        "code": "SELECT MAX(monthly_salary) FROM salaries;"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No nulls or duplicates found"
+    ],
+    "assumptions": [
+      "The 950,000 SAR outlier may represent an error (e.g., misplaced decimal) or rare executive position"
+    ],
+    "limitations": [
+      "The median is less informative than the mean for skewed distributions with small sample sizes in specific departments"
+    ],
+    "confidence": "high"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "score": {
+    "case_id": "correlation_trap",
+    "model": "granite4.2:8b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "corr(sales, drownings)",
+        "passed": false
+      },
+      {
+        "kind": "mention",
+        "label": "temperature / confound / third variable / common cause / lurking",
+        "passed": false
+      },
+      {
+        "kind": "mention",
+        "label": "correlat",
+        "passed": false
+      }
+    ],
+    "error": null,
+    "seconds": 88.94878609999978,
+    "steps": 6,
+    "tokens": 18680,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "low",
+    "summary": "Short answer to the question (to be filled later).",
+    "score": 0.25,
+    "passed": false
+  },
+  "result": {
+    "summary": "Short answer to the question (to be filled later).",
+    "findings": [],
+    "charts": [],
+    "data_quality_notes": [],
+    "assumptions": [],
+    "limitations": [],
+    "confidence": "low"
+  }
+}

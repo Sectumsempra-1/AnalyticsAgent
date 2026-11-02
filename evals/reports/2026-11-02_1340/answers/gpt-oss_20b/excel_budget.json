@@ -1,0 +1,49 @@
+{
+  "score": {
+    "case_id": "excel_budget",
+    "model": "gpt-oss:20b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "marketing overspend",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "marketing",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 49.688475499999186,
+    "steps": 5,
+    "tokens": 9327,
+    "report_attempts": 2,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "Marketing overspent its budget by $152,200.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Marketing overspent its budget by $152,200.",
+    "findings": [
+      {
+        "statement": "Marketing overspent its budget by the largest amount.",
+        "evidence": "department  budget  actual  overspend\n marketing  491000  643200     152200",
+        "method": "SQL join and ordering",
+        "code": "SELECT department, budget, actual, (actual - budget) AS overspend FROM budget_2025_budget b JOIN budget_2025_actual a USING (department) ORDER BY overspend DESC LIMIT 1"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [],
+    "assumptions": [],
+    "limitations": [],
+    "confidence": "high"
+  }
+}

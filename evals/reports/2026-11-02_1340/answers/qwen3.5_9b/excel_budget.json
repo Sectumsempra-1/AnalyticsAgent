@@ -1,0 +1,74 @@
+{
+  "score": {
+    "case_id": "excel_budget",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "marketing overspend",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "marketing",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 27.150039899999683,
+    "steps": 3,
+    "tokens": 8010,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "Marketing department overspent its budget by the largest amount: $152,200 (budgeted $491,000, spent $643,200).",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Marketing department overspent its budget by the largest amount: $152,200 (budgeted $491,000, spent $643,200).",
+    "findings": [
+      {
+        "statement": "Marketing overspent by $152,200, which is the largest overspend among all departments.",
+        "evidence": "department: marketing, budget: 491000, actual: 643200, overspend: 152200",
+        "method": "SQL JOIN and subtraction to calculate overspend for each department, then ORDER BY overspend DESC",
+        "code": "SELECT b.department, b.budget, a.actual, (a.actual - b.budget) AS overspend FROM budget_2025_budget b JOIN budget_2025_actual a ON b.department = a.department ORDER BY overspend DESC"
+      },
+      {
+        "statement": "IT department overspent by $24,700, the second largest overspend.",
+        "evidence": "department: it, budget: 357000, actual: 381700, overspend: 24700",
+        "method": "SQL JOIN and subtraction to calculate overspend for each department",
+        "code": "SELECT b.department, b.budget, a.actual, (a.actual - b.budget) AS overspend FROM budget_2025_budget b JOIN budget_2025_actual a ON b.department = a.department ORDER BY overspend DESC"
+      },
+      {
+        "statement": "Facilities overspent by $200, the smallest overspend among departments that exceeded budget.",
+        "evidence": "department: facilities, budget: 216000, actual: 216200, overspend: 200",
+        "method": "SQL JOIN and subtraction to calculate overspend for each department",
+        "code": "SELECT b.department, b.budget, a.actual, (a.actual - b.budget) AS overspend FROM budget_2025_budget b JOIN budget_2025_actual a ON b.department = a.department ORDER BY overspend DESC"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No null values in either table (budget_2025_budget and budget_2025_actual)",
+      "No duplicate rows in either table",
+      "All columns have integer types with no type problems",
+      "Both tables contain exactly 8 rows each, representing 8 departments"
+    ],
+    "assumptions": [
+      "Budget and actual spending are measured in the same currency unit (dollars)",
+      "The budget_2025_budget table represents planned spending for 2025",
+      "The budget_2025_actual table represents actual spending incurred by the end of 2025"
+    ],
+    "limitations": [
+      "Only 8 departments are included in the dataset, limiting generalizability to larger organizations",
+      "No temporal breakdown available - overspend is calculated as a single aggregate for each department",
+      "Cannot determine if overspending was due to one-time events or systemic issues without additional data"
+    ],
+    "confidence": "high"
+  }
+}

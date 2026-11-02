@@ -1,0 +1,49 @@
+{
+  "score": {
+    "case_id": "small_sample",
+    "model": "granite4.2:8b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "Narjis review count",
+        "passed": false
+      },
+      {
+        "kind": "mention",
+        "label": "narjis",
+        "passed": false
+      },
+      {
+        "kind": "mention",
+        "label": "sample / only 4 / few / limited / 4 ratings / 4 reviews",
+        "passed": false
+      }
+    ],
+    "error": null,
+    "seconds": 91.4054584000005,
+    "steps": 3,
+    "tokens": 11943,
+    "report_attempts": 2,
+    "removed_findings": 0,
+    "confidence": "low",
+    "summary": "The agent ran its analysis but could not produce a valid structured report.",
+    "score": 0.25,
+    "passed": false
+  },
+  "result": {
+    "summary": "The agent ran its analysis but could not produce a valid structured report.",
+    "findings": [],
+    "charts": [],
+    "data_quality_notes": [],
+    "assumptions": [],
+    "limitations": [
+      "Final report failed validation: expected an AnalysisResult, got NoneType"
+    ],
+    "confidence": "low"
+  }
+}

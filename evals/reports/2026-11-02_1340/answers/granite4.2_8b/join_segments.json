@@ -1,0 +1,44 @@
+{
+  "score": {
+    "case_id": "join_segments",
+    "model": "granite4.2:8b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "corporate revenue",
+        "passed": false
+      },
+      {
+        "kind": "mention",
+        "label": "corporate",
+        "passed": false
+      }
+    ],
+    "error": null,
+    "seconds": 115.64667940000072,
+    "steps": 5,
+    "tokens": 17788,
+    "report_attempts": 2,
+    "removed_findings": 0,
+    "confidence": "low",
+    "summary": "The agent ran its analysis but could not produce a valid structured report.",
+    "score": 0.3333333333333333,
+    "passed": false
+  },
+  "result": {
+    "summary": "The agent ran its analysis but could not produce a valid structured report.",
+    "findings": [],
+    "charts": [],
+    "data_quality_notes": [],
+    "assumptions": [],
+    "limitations": [
+      "Final report failed validation: expected an AnalysisResult, got NoneType"
+    ],
+    "confidence": "low"
+  }
+}

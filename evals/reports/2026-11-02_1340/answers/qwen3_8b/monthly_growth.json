@@ -1,0 +1,39 @@
+{
+  "score": {
+    "case_id": "monthly_growth",
+    "model": "qwen3:8b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "Mar->Apr change %",
+        "passed": false
+      }
+    ],
+    "error": null,
+    "seconds": 99.00062020000041,
+    "steps": 5,
+    "tokens": 15937,
+    "report_attempts": 2,
+    "removed_findings": 0,
+    "confidence": "low",
+    "summary": "The agent ran its analysis but could not produce a valid structured report.",
+    "score": 0.5,
+    "passed": false
+  },
+  "result": {
+    "summary": "The agent ran its analysis but could not produce a valid structured report.",
+    "findings": [],
+    "charts": [],
+    "data_quality_notes": [],
+    "assumptions": [],
+    "limitations": [
+      "Final report failed validation: expected an AnalysisResult, got NoneType"
+    ],
+    "confidence": "low"
+  }
+}

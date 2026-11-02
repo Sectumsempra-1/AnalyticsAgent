@@ -1,0 +1,73 @@
+{
+  "score": {
+    "case_id": "salary_outlier",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "median salary",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "outlier / extreme / skew",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 40.21216319999985,
+    "steps": 4,
+    "tokens": 9707,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "The typical monthly salary at this company is approximately 13,985 SAR (median). The average salary of 18,728 SAR is inflated by extreme outliers, particularly one employee earning 950,000 SAR in the ops department.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "The typical monthly salary at this company is approximately 13,985 SAR (median). The average salary of 18,728 SAR is inflated by extreme outliers, particularly one employee earning 950,000 SAR in the ops department.",
+    "findings": [
+      {
+        "statement": "The median monthly salary of 13,985 SAR better represents the typical employee than the mean of 18,728 SAR, which is skewed by extreme outliers.",
+        "evidence": "median_salary=13985.0, avg_salary=18727.75",
+        "method": "SQL aggregation with AVG and MEDIAN functions",
+        "code": "SELECT COUNT(*) as total_rows, MIN(monthly_salary) as min_salary, MAX(monthly_salary) as max_salary, AVG(monthly_salary) as avg_salary, MEDIAN(monthly_salary) as median_salary, STDDEV(monthly_salary) as std_dev FROM salaries"
+      },
+      {
+        "statement": "There is a significant salary outlier in the ops department: one employee earns 950,000 SAR while the department average is 43,239 SAR.",
+        "evidence": "ops avg=43238.75, ops max=950000.0",
+        "method": "SQL GROUP BY department aggregation",
+        "code": "SELECT department, COUNT(*) as count, AVG(monthly_salary) as avg_salary, MIN(monthly_salary) as min_salary, MAX(monthly_salary) as max_salary FROM salaries GROUP BY department ORDER BY avg_salary DESC"
+      },
+      {
+        "statement": "The salary distribution is highly right-skewed with a standard deviation of 66,228 SAR, indicating high variability in pay.",
+        "evidence": "std_dev=66227.576051",
+        "method": "SQL aggregation with STDDEV function",
+        "code": "SELECT COUNT(*) as total_rows, MIN(monthly_salary) as min_salary, MAX(monthly_salary) as max_salary, AVG(monthly_salary) as avg_salary, MEDIAN(monthly_salary) as median_salary, STDDEV(monthly_salary) as std_dev FROM salaries"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No null values in any column",
+      "No duplicate rows",
+      "One extreme outlier: monthly_salary=950000.0 (ops department), which is 107x the minimum salary of 8870.0",
+      "High standard deviation (66,228 SAR) relative to mean indicates skewed distribution"
+    ],
+    "assumptions": [
+      "The dataset represents all employees at this company",
+      "Monthly salaries are in SAR as noted in requester background"
+    ],
+    "limitations": [
+      "Single extreme outlier (950,000 SAR) significantly inflates the mean salary",
+      "Median is more reliable than mean for 'typical' salary representation",
+      "Small sample sizes per department (32-64 employees each) limits generalizability within departments"
+    ],
+    "confidence": "high"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "score": {
+    "case_id": "salary_outlier",
+    "model": "gpt-oss:20b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "median salary",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "outlier / extreme / skew",
+        "passed": false
+      }
+    ],
+    "error": null,
+    "seconds": 94.08861320000142,
+    "steps": 3,
+    "tokens": 7219,
+    "report_attempts": 2,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "The typical monthly salary at the company is 13,985 SAR.",
+    "score": 0.6666666666666666,
+    "passed": false
+  },
+  "result": {
+    "summary": "The typical monthly salary at the company is 13,985 SAR.",
+    "findings": [
+      {
+        "statement": "The median monthly salary is 13,985 SAR.",
+        "evidence": "median_salary 13985.0",
+        "method": "SQL aggregation",
+        "code": "SELECT AVG(monthly_salary) as mean_salary, PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY monthly_salary) as median_salary, MIN(monthly_salary) as min_salary, MAX(monthly_salary) as max_salary FROM salaries;"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [],
+    "assumptions": [],
+    "limitations": [],
+    "confidence": "high"
+  }
+}

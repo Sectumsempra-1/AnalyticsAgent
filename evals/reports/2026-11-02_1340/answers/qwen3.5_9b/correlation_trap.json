@@ -1,0 +1,49 @@
+{
+  "score": {
+    "case_id": "correlation_trap",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "corr(sales, drownings)",
+        "passed": false
+      },
+      {
+        "kind": "mention",
+        "label": "temperature / confound / third variable / common cause / lurking",
+        "passed": false
+      },
+      {
+        "kind": "mention",
+        "label": "correlat",
+        "passed": false
+      }
+    ],
+    "error": null,
+    "seconds": 54.89244349999899,
+    "steps": 5,
+    "tokens": 20404,
+    "report_attempts": 2,
+    "removed_findings": 0,
+    "confidence": "low",
+    "summary": "The agent ran its analysis but could not produce a valid structured report.",
+    "score": 0.25,
+    "passed": false
+  },
+  "result": {
+    "summary": "The agent ran its analysis but could not produce a valid structured report.",
+    "findings": [],
+    "charts": [],
+    "data_quality_notes": [],
+    "assumptions": [],
+    "limitations": [
+      "Final report failed validation: expected an AnalysisResult, got NoneType"
+    ],
+    "confidence": "low"
+  }
+}

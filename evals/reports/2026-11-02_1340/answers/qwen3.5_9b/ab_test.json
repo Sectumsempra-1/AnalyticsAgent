@@ -1,0 +1,80 @@
+{
+  "score": {
+    "case_id": "ab_test",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "conversion rate A",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "conversion rate B",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "significant",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 38.70615589999943,
+    "steps": 3,
+    "tokens": 8636,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "Yes, variant B converted better than variant A with a statistically significant difference (p-value = 0.00016). Variant B achieved a 12.97% conversion rate compared to Variant A's 9.87%, a 3.10 percentage point improvement.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Yes, variant B converted better than variant A with a statistically significant difference (p-value = 0.00016). Variant B achieved a 12.97% conversion rate compared to Variant A's 9.87%, a 3.10 percentage point improvement.",
+    "findings": [
+      {
+        "statement": "Variant B has a higher conversion rate than Variant A.",
+        "evidence": "Variant A: 296 conversions out of 3,000 users (9.87%); Variant B: 389 conversions out of 3,000 users (12.97%)",
+        "method": "Grouped conversion counts and rates by variant using pandas groupby aggregation",
+        "code": "variant_stats = df.groupby('variant').agg(converted_count=('converted', 'sum'), total_users=('user_id', 'count')).reset_index(); variant_stats['conversion_rate'] = variant_stats['converted_count'] / variant_stats['total_users']"
+      },
+      {
+        "statement": "The difference in conversion rates is statistically significant with a p-value of 0.00016.",
+        "evidence": "Z-statistic: -3.7754; P-value: 1.597584e-04",
+        "method": "Two-proportion z-test comparing conversion rates between variants",
+        "code": "pooled_prop = (group_a.sum() + group_b.sum()) / (len(group_a) + len(group_b)); se = (pooled_prop * (1 - pooled_prop) * (1/len(group_a) + 1/len(group_b))) ** 0.5; z_stat = (group_a.mean() - group_b.mean()) / se; p_value = 2 * (1 - stats.norm.cdf(abs(z_stat)))"
+      },
+      {
+        "statement": "The 95% confidence interval for the difference in conversion rates does not include zero, confirming statistical significance.",
+        "evidence": "95% Confidence Interval for difference: [0.0149, 0.0471]",
+        "method": "Calculated standard error and constructed 95% confidence interval around the mean difference",
+        "code": "diff = group_b.mean() - group_a.mean(); se_diff = (group_a.var()/len(group_a) + group_b.var()/len(group_b)) ** 0.5; ci_lower = diff - 1.96 * se_diff; ci_upper = diff + 1.96 * se_diff"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No null values in any column (user_id, variant, converted all have 0% nulls)",
+      "No duplicate rows in the dataset",
+      "All columns have appropriate data types (int64 for user_id and converted, str for variant)",
+      "No outliers or type problems detected"
+    ],
+    "assumptions": [
+      "Each user appears only once in the dataset (user_id is unique)",
+      "Conversion events are independent Bernoulli trials",
+      "The two variants were randomly assigned to users",
+      "Sample sizes of 3,000 per variant are sufficiently large for normal approximation"
+    ],
+    "limitations": [
+      "Cannot determine if there was any selection bias in user assignment between variants",
+      "No information about temporal effects or external factors that may have influenced conversions",
+      "Analysis assumes the observed difference is due to the variant and not confounding variables"
+    ],
+    "confidence": "high"
+  }
+}

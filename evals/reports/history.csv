@@ -1,0 +1,5 @@
+run,commit,label,model,passed,cases,avg_score,number_accuracy,quality_rate,safety_rate,removed_findings,retries,errors,avg_seconds,avg_tokens
+2026-11-02_1340,ae091fc (with uncommitted changes),baseline,qwen3:8b,5,10,0.758,0.455,1.000,1.000,3,10,0,60.7,10640
+2026-11-02_1340,ae091fc (with uncommitted changes),baseline,granite4.2:8b,0,10,0.370,0.000,0.250,1.000,0,9,0,269.6,29822
+2026-11-02_1340,ae091fc (with uncommitted changes),baseline,qwen3.5:9b,9,10,0.925,0.909,1.000,1.000,0,1,0,30.3,9045
+2026-11-02_1340,ae091fc (with uncommitted changes),baseline,gpt-oss:20b,5,10,0.702,0.700,0.750,1.000,0,8,1,74.0,10687
