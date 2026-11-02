@@ -44,6 +44,11 @@ cannot be found in tool output are removed.
 
 RETRY_PROMPT = "That report was invalid: {error}\nWrite the report again, following the schema exactly."
 
+NO_TOOL_CALL_PROMPT = """\
+You replied in plain text, but the report must be submitted by calling the AnalysisResult \
+tool. Call AnalysisResult now with every required field (summary, findings, confidence). \
+Do not reply with text."""
+
 
 def build_system_prompt(tables: str, context: str | None, max_steps: int) -> str:
     """Fill in the system prompt for one run."""

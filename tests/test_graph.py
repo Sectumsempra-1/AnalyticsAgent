@@ -112,11 +112,58 @@ def test_invalid_report_is_retried(settings: Settings, fixture_files: dict[str, 
     assert result.findings == [TOTAL_FINDING]
 
 
-def test_report_failing_twice_gives_low_confidence_fallback(settings: Settings, fixture_files: dict[str, Path]) -> None:
-    model = ScriptedModel(reports=[ValueError("bad"), ValueError("still bad")])
+def test_report_failing_every_attempt_gives_low_confidence_fallback(
+    settings: Settings, fixture_files: dict[str, Path]
+) -> None:
+    model = ScriptedModel(reports=[ValueError("bad"), "plain text", ValueError("still bad")])
     result = AnalysisResult.model_validate(run(model, settings, fixture_files))
     assert result.confidence == "low"
     assert "could not produce a valid structured report" in result.summary
+    assert [m for m, _ in model.report_calls] == ["function_calling", "function_calling", "json_schema"]
+
+
+def test_plain_text_reply_gets_a_specific_retry_prompt(settings: Settings, fixture_files: dict[str, Path]) -> None:
+    model = ScriptedModel(
+        turns=[tool_call("run_sql", query=SUM_SQL)], reports=["Total sales are 1395.5.", report(TOTAL_FINDING)]
+    )
+    result = AnalysisResult.model_validate(run(model, settings, fixture_files))
+    assert result.findings == [TOTAL_FINDING]
+    retry = model.report_calls[1][1][-1].content
+    assert "plain text" in retry and "AnalysisResult tool" in retry
+
+
+def test_report_written_as_json_text_is_accepted(settings: Settings, fixture_files: dict[str, Path]) -> None:
+    text = "Here is the report:\n```json\n" + report(TOTAL_FINDING).model_dump_json() + "\n```"
+    model = ScriptedModel(turns=[tool_call("run_sql", query=SUM_SQL)], reports=[text])
+    result = AnalysisResult.model_validate(run(model, settings, fixture_files))
+    assert result.findings == [TOTAL_FINDING]
+    assert len(model.report_calls) == 1
+
+
+def test_strict_last_attempt_uses_a_fresh_context(settings: Settings, fixture_files: dict[str, Path]) -> None:
+    model = ScriptedModel(
+        turns=[tool_call("run_sql", query=SUM_SQL)],
+        reports=["no tool call", "no tool call again", report(TOTAL_FINDING)],
+    )
+    out = build_agent(model, settings).stream(
+        {"question": "Total?", "dataset_paths": [str(fixture_files["sales"])]}, stream_mode="values"
+    )
+    state = list(out)[-1]
+    assert state["findings"] == [TOTAL_FINDING.model_dump()]
+    method, messages = model.report_calls[2]
+    assert method == "json_schema"
+    assert "plain text" not in str(messages[-1].content)  # earlier retry prompts were dropped
+
+
+def test_provider_error_during_report_is_retried(settings: Settings, fixture_files: dict[str, Path]) -> None:
+    # e.g. Ollama's ResponseError for a truncated tool call; must not crash the run
+    model = ScriptedModel(
+        turns=[tool_call("run_sql", query=SUM_SQL)],
+        reports=[RuntimeError("error parsing tool call: unexpected end of JSON input"), report(TOTAL_FINDING)],
+    )
+    result = AnalysisResult.model_validate(run(model, settings, fixture_files))
+    assert result.findings == [TOTAL_FINDING]
+    assert "unexpected end of JSON input" in str(model.report_calls[1][1][-1].content)
 
 
 def test_charts_come_from_saved_files(settings: Settings, fixture_files: dict[str, Path]) -> None:

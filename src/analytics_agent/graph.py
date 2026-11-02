@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Annotated, Any, Literal, TypedDict
 
 from langchain.chat_models import init_chat_model
-from langchain_core.exceptions import OutputParserException
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage, AnyMessage, HumanMessage, SystemMessage, ToolMessage
 from langgraph.graph import END, START, StateGraph
@@ -21,14 +20,17 @@ from langgraph.graph.state import CompiledStateGraph
 from pydantic import ValidationError
 
 from analytics_agent.config import Settings
-from analytics_agent.prompts import FINAL_REPORT_PROMPT, RETRY_PROMPT, build_system_prompt
+from analytics_agent.prompts import FINAL_REPORT_PROMPT, NO_TOOL_CALL_PROMPT, RETRY_PROMPT, build_system_prompt
 from analytics_agent.schemas import MAX_STEPS_LIMIT, AnalysisRequest, AnalysisResult
 from analytics_agent.tools import DatasetLoadError, Workspace, make_tools
 from analytics_agent.verify import verify_result
 
 log = logging.getLogger(__name__)
 
-FINAL_REPORT_ATTEMPTS = 2
+FINAL_REPORT_ATTEMPTS = 2  # with the configured method; then one STRICT_METHOD attempt
+# Schema-constrained decoding (Ollama `format`, OpenAI response_format): slower but the
+# output is forced into the schema's shape. Used only as the last resort.
+STRICT_METHOD = "json_schema"
 # Each step is an agent superstep plus a tools superstep; the rest covers fixed nodes.
 RECURSION_LIMIT = 2 * MAX_STEPS_LIMIT + 10
 
@@ -164,27 +166,49 @@ class _Nodes:
         return {"messages": messages, "tool_outputs": outputs}
 
     def finalize(self, state: AgentState) -> dict[str, Any]:
-        structured = self.model.with_structured_output(
-            AnalysisResult, method=self.settings.structured_output_method
-        )
-        messages = [*state["messages"], HumanMessage(FINAL_REPORT_PROMPT)]
+        """Ask for the structured report: retries with feedback, then one strict-format attempt."""
+        base = [*state["messages"], HumanMessage(FINAL_REPORT_PROMPT)]
+        messages = list(base)
+        configured = self.settings.structured_output_method
+        methods = [configured] * FINAL_REPORT_ATTEMPTS
+        if configured != STRICT_METHOD:
+            methods.append(STRICT_METHOD)
         error = "no attempt made"
-        for attempt in range(1, FINAL_REPORT_ATTEMPTS + 1):
-            try:
-                result = structured.invoke(messages)
-                if isinstance(result, AnalysisResult):
-                    return {**result.model_dump(mode="json"), "report_attempts": attempt}
-                error = f"expected an AnalysisResult, got {type(result).__name__}"
-            except (ValidationError, OutputParserException, ValueError) as exc:
-                error = str(exc)[:1000]
-            log.warning("final report invalid: %s", error)
-            messages.append(HumanMessage(RETRY_PROMPT.format(error=error)))
+        for attempt, method in enumerate(methods, start=1):
+            if method != configured:
+                messages = list(base)  # fresh, shorter context for the strict attempt
+            result, error, retry = self._report_attempt(messages, method)
+            if result is not None:
+                return {**result.model_dump(mode="json"), "report_attempts": attempt}
+            log.warning("final report attempt %d (%s) failed: %s", attempt, method, error)
+            messages.append(HumanMessage(retry))
         fallback = AnalysisResult(
             summary="The agent ran its analysis but could not produce a valid structured report.",
             limitations=[f"Final report failed validation: {error}"],
             confidence="low",
         )
-        return {**fallback.model_dump(mode="json"), "report_attempts": FINAL_REPORT_ATTEMPTS}
+        return {**fallback.model_dump(mode="json"), "report_attempts": len(methods)}
+
+    def _report_attempt(
+        self, messages: list[AnyMessage], method: str
+    ) -> tuple[AnalysisResult | None, str, str]:
+        """One report request. Returns (result, error, retry_prompt); result is None on failure."""
+        try:
+            structured = self.model.with_structured_output(AnalysisResult, method=method, include_raw=True)
+            out = structured.invoke(messages)
+        except Exception as exc:  # provider/model errors (e.g. a truncated tool call) count as a failed attempt
+            error = f"{type(exc).__name__}: {exc}"[:1000]
+            return None, error, RETRY_PROMPT.format(error=error)
+        if isinstance(out.get("parsed"), AnalysisResult):
+            return out["parsed"], "", ""
+        if out.get("parsing_error") is not None:
+            error = str(out["parsing_error"])[:1000]
+            return None, error, RETRY_PROMPT.format(error=error)
+        raw = out.get("raw")
+        rescued = _report_from_text(raw.content if isinstance(raw, AIMessage) else "")
+        if rescued is not None:
+            return rescued, "", ""
+        return None, "the model replied in plain text without calling the AnalysisResult tool", NO_TOOL_CALL_PROMPT
 
     def verify(self, state: AgentState) -> dict[str, Any]:
         drafted = AnalysisResult.model_validate({k: state[k] for k in AnalysisResult.model_fields if k in state})
@@ -199,6 +223,18 @@ class _Nodes:
 
     def _workspace(self, state: AgentState) -> Workspace:
         return Workspace.open(Path(state["workspace_root"]), timeout_s=self.settings.tool_timeout_s)
+
+
+def _report_from_text(content: Any) -> AnalysisResult | None:
+    """Accept a report the model wrote as JSON text instead of a tool call, if it validates."""
+    text = content if isinstance(content, str) else ""
+    start, end = text.find("{"), text.rfind("}")
+    if start < 0 or end <= start:
+        return None
+    try:
+        return AnalysisResult.model_validate_json(text[start : end + 1])
+    except ValidationError:
+        return None
 
 
 def _call_tool(available: dict[str, Any], name: str, args: dict[str, Any]) -> str:

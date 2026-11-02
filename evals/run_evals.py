@@ -2,7 +2,7 @@
 
 Usage:
     python -m evals.run_evals                         # all models in evals/models.json
-    python -m evals.run_evals --models qwen3:8b       # a subset (names from models.json)
+    python -m evals.run_evals --models qwen3.5:9b     # a subset (names from models.json)
     python -m evals.run_evals --provider openai --models gpt-x   # a model not in the file
     python -m evals.run_evals --cases ab_test,prompt_injection
 
@@ -179,7 +179,9 @@ def _opt(v: float | None) -> str:
 def _git_commit() -> str:
     try:
         sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, check=True)
-        dirty = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True, check=True)
+        # ignore untracked files: the run's own report folder must not count as a change
+        status = ["git", "status", "--porcelain", "--untracked-files=no"]
+        dirty = subprocess.run(status, capture_output=True, text=True, check=True)
         return sha.stdout.strip() + (" (with uncommitted changes)" if dirty.stdout.strip() else "")
     except (OSError, subprocess.CalledProcessError):
         return "unknown"
