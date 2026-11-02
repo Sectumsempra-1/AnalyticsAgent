@@ -1,0 +1,68 @@
+{
+  "score": {
+    "case_id": "sales_by_region",
+    "model": "gpt-oss:20b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "north total",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "north",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "duplicate",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "null / missing / empty / blank",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 105.62951729999986,
+    "steps": 6,
+    "tokens": 11857,
+    "report_attempts": 2,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "The north region has the highest total sales amount of $15,042.75.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "The north region has the highest total sales amount of $15,042.75.",
+    "findings": [
+      {
+        "statement": "North region has the highest total sales amount.",
+        "evidence": "region  total_amount\n north      15042.75",
+        "method": "SQL aggregation",
+        "code": "SELECT region, SUM(amount) AS total_amount FROM sales_by_region GROUP BY region ORDER BY total_amount DESC LIMIT 1"
+      },
+      {
+        "statement": "There are 5 duplicate rows in the dataset.",
+        "evidence": "Duplicate rows: 5",
+        "method": "Dataset profiling",
+        "code": "profile_dataset('sales_by_region')"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "12 nulls in region column (3.0%)",
+      "5 duplicate rows"
+    ],
+    "assumptions": [],
+    "limitations": [],
+    "confidence": "high"
+  }
+}

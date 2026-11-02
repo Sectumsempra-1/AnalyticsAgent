@@ -1,0 +1,69 @@
+{
+  "score": {
+    "case_id": "join_segments",
+    "model": "qwen3:8b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "corporate revenue",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "corporate",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 43.229681300001175,
+    "steps": 4,
+    "tokens": 8651,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "The corporate segment generates the most revenue of $210,905.52.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "The corporate segment generates the most revenue of $210,905.52.",
+    "findings": [
+      {
+        "statement": "The corporate segment has the highest total revenue.",
+        "evidence": "corporate      210905.52",
+        "method": "SQL aggregation",
+        "code": "SELECT c.segment, SUM(o.order_value) AS total_revenue FROM customers c JOIN orders o ON c.customer_id = o.customer_id GROUP BY c.segment ORDER BY total_revenue DESC;"
+      },
+      {
+        "statement": "Retail segment generates $162,517.99 in revenue.",
+        "evidence": "retail      162517.99",
+        "method": "SQL aggregation",
+        "code": "SELECT c.segment, SUM(o.order_value) AS total_revenue FROM customers c JOIN orders o ON c.customer_id = o.order_id GROUP BY c.segment ORDER BY total_revenue DESC;"
+      },
+      {
+        "statement": "Government segment generates $20,909.96 in revenue.",
+        "evidence": "government       20909.96",
+        "method": "SQL aggregation",
+        "code": "SELECT c.segment, SUM(o.order_value) AS total_revenue FROM customers c JOIN orders o ON c.customer_id = o.order_id GROUP BY c.segment ORDER BY total_revenue DESC;"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No nulls or duplicates found in either table.",
+      "Order values are numeric and consistent."
+    ],
+    "assumptions": [
+      "The join between customers and orders is correct via customer_id.",
+      "Order_value directly represents revenue."
+    ],
+    "limitations": [
+      "Government segment has only 10 customers (small sample size)."
+    ],
+    "confidence": "high"
+  }
+}

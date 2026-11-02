@@ -1,0 +1,70 @@
+{
+  "score": {
+    "case_id": "salary_outlier",
+    "model": "qwen3:8b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "median salary",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "outlier / extreme / skew",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 33.33774319999975,
+    "steps": 2,
+    "tokens": 5234,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "medium",
+    "summary": "The typical monthly salary at the company is 13,985 SAR (median), as the distribution is skewed by extreme outliers.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "The typical monthly salary at the company is 13,985 SAR (median), as the distribution is skewed by extreme outliers.",
+    "findings": [
+      {
+        "statement": "The median monthly salary is 13,985 SAR, representing the middle value in the sorted dataset.",
+        "evidence": "median: 13985",
+        "method": "SQL aggregation using PERCENTILE_CONT(0.5)",
+        "code": "SELECT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY monthly_salary) AS median FROM salaries;"
+      },
+      {
+        "statement": "The mean monthly salary is 18,727.8 SAR, influenced by extreme outliers.",
+        "evidence": "mean: 18727.8",
+        "method": "SQL aggregation using AVG()",
+        "code": "SELECT AVG(monthly_salary) AS mean FROM salaries;"
+      },
+      {
+        "statement": "A single outlier of 950,000 SAR skews the distribution.",
+        "evidence": "min: 8870, max: 950000",
+        "method": "Inspection of summary statistics",
+        "code": "SELECT MIN(monthly_salary), MAX(monthly_salary) FROM salaries;"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No nulls or duplicates found in any columns.",
+      "Outlier detected: 950,000 SAR in monthly_salary (200x higher than the next highest value)."
+    ],
+    "assumptions": [
+      "The 950,000 SAR outlier is an error (e.g., misplaced decimal).",
+      "The dataset is representative of the company's salary distribution."
+    ],
+    "limitations": [
+      "Single outlier may distort statistical measures like the mean.",
+      "No granular departmental analysis performed."
+    ],
+    "confidence": "medium"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "score": {
+    "case_id": "excel_budget",
+    "model": "gpt-oss:20b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "marketing overspend",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "marketing",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 91.25334620000103,
+    "steps": 5,
+    "tokens": 11566,
+    "report_attempts": 3,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "Marketing overspent its budget by $152,200.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Marketing overspent its budget by $152,200.",
+    "findings": [
+      {
+        "statement": "Marketing exceeded its budget by the largest amount.",
+        "evidence": "department  budget  actual  overspend\n marketing  491000  643200     152200",
+        "method": "SQL join and calculation of overspend",
+        "code": "SELECT department, budget, actual, (actual - budget) AS overspend FROM budget_2025_budget b JOIN budget_2025_actual a USING (department) ORDER BY overspend DESC LIMIT 1"
+      },
+      {
+        "statement": "All departments\u2019 overspend values were computed and Marketing had the highest.",
+        "evidence": "department  budget  actual  overspend\n marketing  491000  643200     152200\n        it  357000  381700      24700\nfacilities  216000  216200        200\n     sales  274000  270200      -3800\n   finance  598000  591800      -6200\n       ops  707000  658500     -48500\n        hr  736000  686400     -49600\n     legal  784000  666600    -117400",
+        "method": "SQL join and ordering by overspend",
+        "code": "SELECT department, budget, actual, (actual - budget) AS overspend FROM budget_2025_budget b JOIN budget_2025_actual a USING (department) ORDER BY overspend DESC"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "budget_2025_budget: 0 nulls, 0 duplicates, budget column type int64, no type problems.",
+      "budget_2025_actual: 0 nulls, 0 duplicates, actual column type int64, no type problems."
+    ],
+    "assumptions": [
+      "Department names match exactly between the two sheets.",
+      "Overspend is calculated as actual spending minus budgeted amount."
+    ],
+    "limitations": [
+      "Only 8 departments are present, so the sample size is small.",
+      "No outlier detection was performed beyond the basic profile."
+    ],
+    "confidence": "high"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "score": {
+    "case_id": "messy_numbers",
+    "model": "gpt-oss:20b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "total invoiced",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "text / string / format / type / $ / currency symbol",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "blank / missing / empty / null",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 66.37399019999975,
+    "steps": 3,
+    "tokens": 6718,
+    "report_attempts": 3,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "The total invoice amount across all 80 rows is $202,682.05.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "The total invoice amount across all 80 rows is $202,682.05.",
+    "findings": [
+      {
+        "statement": "The invoices table contains 80 rows with 4 missing amount values.",
+        "evidence": "Rows: 80  Columns: 2\nDuplicate rows: 0\n\nColumns:\n- invoice [str] nulls=0 (0.0%)\n- amount [str] nulls=4 (5.0%)",
+        "method": "profile_dataset",
+        "code": "profile_dataset('invoices')"
+      },
+      {
+        "statement": "Summing the numeric amounts (after stripping currency symbols and commas) yields a total of $202,682.05.",
+        "evidence": "total_amount\n    202682.05",
+        "method": "run_sql",
+        "code": "SELECT SUM(CAST(REPLACE(REPLACE(amount, '$', ''), ',', '') AS DOUBLE)) AS total_amount FROM invoices;"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "Nulls: 4 missing values in the 'amount' column (5.0% of rows).",
+      "Duplicates: 0 duplicate rows.",
+      "Type problems: 'amount' stored as string; required casting to numeric for aggregation.",
+      "Outliers: Not assessed due to limited sample and lack of domain thresholds."
+    ],
+    "assumptions": [
+      "All non\u2011null amount values are valid monetary figures that can be parsed after removing '$' and ','.",
+      "Missing amounts are treated as zero in the total calculation.",
+      "The dataset is representative of all invoices."
+    ],
+    "limitations": [
+      "The presence of null amounts means the total excludes those entries; the true total could be higher.",
+      "No validation of currency consistency or format beyond simple string cleaning.",
+      "Potential outliers or erroneous values were not identified."
+    ],
+    "confidence": "high"
+  }
+}

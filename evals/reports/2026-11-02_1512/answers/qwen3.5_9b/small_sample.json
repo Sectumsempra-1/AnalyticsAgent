@@ -1,0 +1,78 @@
+{
+  "score": {
+    "case_id": "small_sample",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "Narjis review count",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "narjis",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "sample / only 4 / few / limited / 4 ratings / 4 reviews",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 25.665119799999957,
+    "steps": 3,
+    "tokens": 6358,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "medium",
+    "summary": "Narjis has the highest average customer rating at 4.5 among all stores in the dataset.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Narjis has the highest average customer rating at 4.5 among all stores in the dataset.",
+    "findings": [
+      {
+        "statement": "Narjis has the highest average customer rating of 4.50, followed by Olaya (4.04), Malqa (3.88), and Rawdah (3.73).",
+        "evidence": "store avg_rating Narjis 4.500000 Olaya 4.035714 Malqa 3.881818 Rawdah 3.726316",
+        "method": "SQL aggregation with GROUP BY and AVG, ordered by average rating descending",
+        "code": "SELECT store, AVG(rating) as avg_rating FROM store_ratings GROUP BY store ORDER BY avg_rating DESC"
+      },
+      {
+        "statement": "The dataset contains 349 total rows with ratings ranging from 2 to 5.",
+        "evidence": "Rows: 349 Columns: 2 rating [int64] nulls=0 (0.0%) distinct=4 min=2 max=5",
+        "method": "Dataset profiling via profile_dataset tool",
+        "code": "profile_dataset on store_ratings table"
+      },
+      {
+        "statement": "There are 337 duplicate rows in the dataset, which may affect the representativeness of the average ratings.",
+        "evidence": "Duplicate rows: 337",
+        "method": "Dataset profiling via profile_dataset tool",
+        "code": "profile_dataset on store_ratings table"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No null values in either column (0.0%)",
+      "337 duplicate rows out of 349 total rows (~96% duplicates)",
+      "Rating column is int64 type with values ranging from 2 to 5",
+      "Store column is str type with 4 distinct values"
+    ],
+    "assumptions": [
+      "Average ratings are calculated across all records including duplicate entries",
+      "The dataset represents customer ratings as recorded in the source system"
+    ],
+    "limitations": [
+      "High proportion of duplicate rows (337 out of 349) may indicate data collection or processing issues",
+      "Small sample size per store (fewer than 100 unique records after deduplication)",
+      "No information about when ratings were collected or temporal distribution"
+    ],
+    "confidence": "medium"
+  }
+}

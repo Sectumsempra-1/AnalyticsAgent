@@ -1,0 +1,57 @@
+{
+  "score": {
+    "case_id": "excel_budget",
+    "model": "qwen3:8b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "marketing overspend",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "marketing",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 61.42317759999969,
+    "steps": 4,
+    "tokens": 9640,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "The Marketing department overspent its budget by the largest amount of $152,200.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "The Marketing department overspent its budget by the largest amount of $152,200.",
+    "findings": [
+      {
+        "statement": "Marketing had the highest overspend amount.",
+        "evidence": "152200",
+        "method": "SQL aggregation",
+        "code": "SELECT b.department, (a.actual - b.budget) AS overspend FROM budget_2025_actual a JOIN budget_2025_budget b ON a.department = b.department WHERE a.actual > b.budget ORDER BY overspend DESC LIMIT 1;"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No nulls or duplicates found in either table.",
+      "Budget and actual columns are integer types with no type mismatches."
+    ],
+    "assumptions": [
+      "Departments in both tables are perfectly aligned.",
+      "Overspend is defined as actual spending exceeding budget."
+    ],
+    "limitations": [
+      "No sampling was performed due to small dataset size (8 rows)."
+    ],
+    "confidence": "high"
+  }
+}

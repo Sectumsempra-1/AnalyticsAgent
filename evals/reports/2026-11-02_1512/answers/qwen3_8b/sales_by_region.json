@@ -1,0 +1,69 @@
+{
+  "score": {
+    "case_id": "sales_by_region",
+    "model": "qwen3:8b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "north total",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "north",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "duplicate",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "null / missing / empty / blank",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 39.81739999999991,
+    "steps": 3,
+    "tokens": 6630,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "medium",
+    "summary": "The region with the highest total sales is north, with a total of $15,042.75.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "The region with the highest total sales is north, with a total of $15,042.75.",
+    "findings": [
+      {
+        "statement": "North has the highest total sales.",
+        "evidence": "15042.75",
+        "method": "SQL aggregation",
+        "code": "SELECT region, SUM(amount) AS total_sales FROM sales_by_region WHERE region IS NOT NULL GROUP BY region ORDER BY total_sales DESC LIMIT 1;"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "12 null values in 'region' column (3.0%)",
+      "5 duplicate rows",
+      "order_id has 400 distinct values (potential duplicates)"
+    ],
+    "assumptions": [
+      "Null values in 'region' are excluded from calculations",
+      "Duplicate rows do not represent duplicate transactions"
+    ],
+    "limitations": [
+      "12 null region values may skew regional totals",
+      "5 duplicate rows could affect accuracy if not properly handled"
+    ],
+    "confidence": "medium"
+  }
+}

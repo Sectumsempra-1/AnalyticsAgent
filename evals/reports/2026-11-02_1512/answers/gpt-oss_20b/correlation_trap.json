@@ -1,0 +1,81 @@
+{
+  "score": {
+    "case_id": "correlation_trap",
+    "model": "gpt-oss:20b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "corr(sales, drownings)",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "temperature / confound / third variable / common cause / lurking",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "correlat",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 162.96775119999984,
+    "steps": 6,
+    "tokens": 16156,
+    "report_attempts": 2,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "Ice\u2011cream sales do not cause drownings; the observed association is explained by temperature.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Ice\u2011cream sales do not cause drownings; the observed association is explained by temperature.",
+    "findings": [
+      {
+        "statement": "Ice\u2011cream sales and drownings are positively correlated.",
+        "evidence": "Correlation ice_cream_sales vs drownings: PearsonRResult(statistic=np.float64(0.6160933800709808), pvalue=np.float64(1.5985451127164377e-39))",
+        "method": "Pearson correlation",
+        "code": "import pandas as pd\nfrom scipy.stats import pearsonr\n\ndf = tables['icecream_drownings']\nprint('Correlation ice_cream_sales vs drownings:', pearsonr(df['ice_cream_sales'], df['drownings']))"
+      },
+      {
+        "statement": "Temperature and drownings are positively correlated.",
+        "evidence": "Correlation temperature vs drownings: PearsonRResult(statistic=np.float64(0.6704413256110697), pvalue=np.float64(5.527676966218966e-49))",
+        "method": "Pearson correlation",
+        "code": "import pandas as pd\nfrom scipy.stats import pearsonr\n\ndf = tables['icecream_drownings']\nprint('Correlation temperature vs drownings:', pearsonr(df['temperature_c'], df['drownings']))"
+      },
+      {
+        "statement": "Temperature and ice\u2011cream sales are strongly positively correlated.",
+        "evidence": "Correlation ice_cream_sales vs temperature: PearsonRResult(statistic=np.float64(0.9342561734112511), pvalue=np.float64(1.2416996285320909e-164))",
+        "method": "Pearson correlation",
+        "code": "import pandas as pd\nfrom scipy.stats import pearsonr\n\ndf = tables['icecream_drownings']\nprint('Correlation ice_cream_sales vs temperature:', pearsonr(df['ice_cream_sales'], df['temperature_c']))"
+      },
+      {
+        "statement": "In a multiple\u2011regression model, temperature remains a significant predictor of drownings while ice\u2011cream sales does not.",
+        "evidence": "Intercept: 0.048196169142500175\nCoeff ice_cream_sales: -0.001205225583646271\nCoeff temperature: 0.17677470823283295\nR^2: 0.45032107778042907",
+        "method": "Ordinary least squares regression",
+        "code": "import pandas as pd, numpy as np\n\ndf = tables['icecream_drownings']\nX = df[['ice_cream_sales', 'temperature_c']].values\nX = np.column_stack([np.ones(len(X)), X])\ny = df['drownings'].values\nbeta, residuals, rank, s = np.linalg.lstsq(X, y, rcond=None)\nprint('Intercept:', beta[0])\nprint('Coeff ice_cream_sales:', beta[1])\nprint('Coeff temperature:', beta[2])\nprint('R^2:', 1 - residuals[0]/((y - y.mean())**2).sum())"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No null values detected.",
+      "No duplicate rows detected.",
+      "No outliers detected based on standard deviation thresholds.",
+      "All columns have appropriate data types (str, float64, int64)."
+    ],
+    "assumptions": [
+      "Linear relationships assumed for correlation and regression analyses."
+    ],
+    "limitations": [
+      "Observational data; cannot establish causation beyond correlation."
+    ],
+    "confidence": "high"
+  }
+}

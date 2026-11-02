@@ -1,0 +1,73 @@
+{
+  "score": {
+    "case_id": "correlation_trap",
+    "model": "qwen3:8b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "corr(sales, drownings)",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "temperature / confound / third variable / common cause / lurking",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "correlat",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 45.2055349000002,
+    "steps": 3,
+    "tokens": 7499,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "medium",
+    "summary": "Ice cream sales and drownings are positively correlated (r=0.616), but this does not prove causation. Temperature shows a stronger correlation (r=0.670) with drownings.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Ice cream sales and drownings are positively correlated (r=0.616), but this does not prove causation. Temperature shows a stronger correlation (r=0.670) with drownings.",
+    "findings": [
+      {
+        "statement": "Ice cream sales and drownings show a positive correlation",
+        "evidence": "ice_cream_corr=0.616093",
+        "method": "SQL Pearson correlation",
+        "code": "SELECT CORR(ice_cream_sales, drownings) AS ice_cream_corr..."
+      },
+      {
+        "statement": "Temperature shows a stronger correlation with drownings",
+        "evidence": "temp_corr=0.670441",
+        "method": "SQL Pearson correlation",
+        "code": "SELECT CORR(temperature_c, drownings) AS temp_corr..."
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No null values in any columns",
+      "0 duplicate rows found",
+      "Temperature ranges from 10.4\u00b0C to 38.8\u00b0C (physically plausible)",
+      "Ice cream sales range from 313 to 869 (plausible business values)"
+    ],
+    "assumptions": [
+      "Correlation implies a potential relationship",
+      "Temperature is the confounding variable"
+    ],
+    "limitations": [
+      "Correlation does not prove causation",
+      "No experimental control or randomization",
+      "Confounding variable (temperature) not controlled for",
+      "Observational data lacks causal inference capability"
+    ],
+    "confidence": "medium"
+  }
+}

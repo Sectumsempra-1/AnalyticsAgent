@@ -1,0 +1,80 @@
+{
+  "score": {
+    "case_id": "salary_outlier",
+    "model": "gpt-oss:20b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "median salary",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "outlier / extreme / skew",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 128.40001289999964,
+    "steps": 3,
+    "tokens": 9047,
+    "report_attempts": 3,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "The typical monthly salary at the company is **13,985\u202fSAR** (median).",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "The typical monthly salary at the company is **13,985\u202fSAR** (median).",
+    "findings": [
+      {
+        "statement": "Median monthly salary is 13,985\u202fSAR.",
+        "evidence": "median_salary 13985.0",
+        "method": "SQL aggregation",
+        "code": "SELECT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY monthly_salary) as median_salary FROM salaries;"
+      },
+      {
+        "statement": "Mean monthly salary is 18,727.75\u202fSAR.",
+        "evidence": "mean_salary 18727.75",
+        "method": "SQL aggregation",
+        "code": "SELECT AVG(monthly_salary) as mean_salary FROM salaries;"
+      },
+      {
+        "statement": "Minimum monthly salary is 8,870\u202fSAR.",
+        "evidence": "min_salary 8870.0",
+        "method": "SQL aggregation",
+        "code": "SELECT MIN(monthly_salary) as min_salary FROM salaries;"
+      },
+      {
+        "statement": "Maximum monthly salary is 950,000\u202fSAR.",
+        "evidence": "max_salary 950000.0",
+        "method": "SQL aggregation",
+        "code": "SELECT MAX(monthly_salary) as max_salary FROM salaries;"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "Nulls: 0 in all columns.",
+      "Duplicates: 0 rows.",
+      "Row count: 200.",
+      "Column types: employee_id (int64), department (str), monthly_salary (float64).",
+      "Range: 8,870\u202fSAR to 950,000\u202fSAR, indicating a wide spread and potential outliers."
+    ],
+    "assumptions": [
+      "The dataset is representative of all employees at the company.",
+      "All salary values are correctly recorded in SAR.",
+      "No hidden or malformed data beyond what was detected."
+    ],
+    "limitations": [
+      "Outlier analysis was not performed; the extreme maximum may skew the mean.",
+      "No additional contextual information (e.g., job level, tenure) is available to refine the typical salary estimate."
+    ],
+    "confidence": "high"
+  }
+}

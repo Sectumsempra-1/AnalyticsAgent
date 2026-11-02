@@ -1,0 +1,71 @@
+{
+  "score": {
+    "case_id": "ab_test",
+    "model": "gpt-oss:20b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "conversion rate A",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "conversion rate B",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "significant",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 44.77901469999961,
+    "steps": 4,
+    "tokens": 6258,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "Variant\u202fB converted better than Variant\u202fA, and the difference is statistically significant.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Variant\u202fB converted better than Variant\u202fA, and the difference is statistically significant.",
+    "findings": [
+      {
+        "statement": "Variant\u202fB had a higher conversion rate than Variant\u202fA.",
+        "evidence": "variant  total  conv     rate\n      B   3000   389 0.129667\n      A   3000   296 0.098667",
+        "method": "SQL aggregation",
+        "code": "SELECT variant, COUNT(*) AS total, SUM(converted) AS conv, SUM(converted)/COUNT(*) AS rate FROM ab_test GROUP BY variant"
+      },
+      {
+        "statement": "The difference in conversion rates is statistically significant.",
+        "evidence": "z 3.775388543138404\np-value two-sided 0.00015975844692217578\np-value one-sided 7.987922346108789e-05",
+        "method": "Two\u2011proportion z\u2011test in Python",
+        "code": "import scipy.stats as st\nconv_B=389\nn_B=3000\nconv_A=296\nn_A=3000\np1=conv_B/n_B\np2=conv_A/n_A\np_pool=(conv_B+conv_A)/(n_B+n_A)\nz=(p1-p2)/((p_pool*(1-p_pool)*(1/n_B+1/n_A))**0.5)\nprint('z',z)\nprint('p-value two-sided',2*(1-st.norm.cdf(abs(z))))\nprint('p-value one-sided',1-st.norm.cdf(z))"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No nulls in any column.",
+      "No duplicate rows.",
+      "No outliers or type problems detected."
+    ],
+    "assumptions": [
+      "Each user appears exactly once.",
+      "Conversion is binary and correctly recorded.",
+      "Sample size per variant is 3,000, which is sufficient for the test."
+    ],
+    "limitations": [
+      "Only two variants; no control for other confounding factors.",
+      "Assumes independence of observations."
+    ],
+    "confidence": "high"
+  }
+}

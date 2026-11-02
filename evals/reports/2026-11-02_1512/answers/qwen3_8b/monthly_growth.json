@@ -1,0 +1,62 @@
+{
+  "score": {
+    "case_id": "monthly_growth",
+    "model": "qwen3:8b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "Mar->Apr change %",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 92.26335819999986,
+    "steps": 5,
+    "tokens": 13013,
+    "report_attempts": 1,
+    "removed_findings": 1,
+    "confidence": "medium",
+    "summary": "Total revenue increased by 4.31% from March 2025 to April 2025.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Total revenue increased by 4.31% from March 2025 to April 2025.",
+    "findings": [
+      {
+        "statement": "Total revenue for March 2025 was $51,929.10.",
+        "evidence": "march_revenue\n       51929.1",
+        "method": "SQL aggregation with date range filtering",
+        "code": "SELECT SUM(CASE WHEN date BETWEEN '2025-03-01' AND '2025-03-31' THEN revenue ELSE 0 END) AS march_revenue..."
+      },
+      {
+        "statement": "Total revenue for April 2025 was $54,166.66.",
+        "evidence": "april_revenue\n      54166.66",
+        "method": "SQL aggregation with date range filtering",
+        "code": "SELECT SUM(CASE WHEN date BETWEEN '2025-04-01' AND '2025-04-30' THEN revenue ELSE 0 END) AS april_revenue..."
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No null values detected (0.0% nulls) in either column.",
+      "All dates are in 'YYYY-MM-DD' format and valid.",
+      "Revenue values are numeric (float64) with no formatting issues."
+    ],
+    "assumptions": [
+      "The date range filters correctly capture entire months.",
+      "Revenue is summed at the monthly level as intended."
+    ],
+    "limitations": [
+      "Monthly data aggregates daily values, which may mask daily fluctuations.",
+      "No statistical significance testing performed (e.g., p-value calculation).",
+      "Removed finding 'Revenue increased by 4.31% from March to April 2025.': figures not found in tool output (4.31, 4.31).",
+      "Summary contains figures not found in tool output: 4.31."
+    ],
+    "confidence": "medium"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "score": {
+    "case_id": "messy_numbers",
+    "model": "qwen3:8b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "total invoiced",
+        "passed": false
+      },
+      {
+        "kind": "quality",
+        "label": "text / string / format / type / $ / currency symbol",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "blank / missing / empty / null",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 51.89664769999945,
+    "steps": 5,
+    "tokens": 11267,
+    "report_attempts": 1,
+    "removed_findings": 1,
+    "confidence": "low",
+    "summary": "The total invoice amount is $35,465.25.",
+    "score": 0.75,
+    "passed": false
+  },
+  "result": {
+    "summary": "The total invoice amount is $35,465.25.",
+    "findings": [],
+    "charts": [],
+    "data_quality_notes": [
+      "4 nulls (5.0%) in 'amount' column",
+      "'amount' stored as string type instead of numeric"
+    ],
+    "assumptions": [
+      "Replacing $ and , symbols correctly parses all numeric values",
+      "Filling nulls with 0 is appropriate for this dataset"
+    ],
+    "limitations": [
+      "Original data contained 4 null values in 'amount' column",
+      "String-based 'amount' column required cleaning before analysis",
+      "Removed finding \"The total invoice amount was calculated after cleaning and converting the 'amount' column.\": figures not found in tool output (35465.25).",
+      "Summary contains figures not found in tool output: 35,465.25."
+    ],
+    "confidence": "low"
+  }
+}

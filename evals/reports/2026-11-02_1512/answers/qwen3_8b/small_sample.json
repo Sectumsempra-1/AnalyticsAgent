@@ -1,0 +1,68 @@
+{
+  "score": {
+    "case_id": "small_sample",
+    "model": "qwen3:8b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "Narjis review count",
+        "passed": false
+      },
+      {
+        "kind": "mention",
+        "label": "narjis",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "sample / only 4 / few / limited / 4 ratings / 4 reviews",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 45.61677249999957,
+    "steps": 3,
+    "tokens": 6714,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "The store with the highest average customer rating is **Narjis** with an average rating of **4.5**.",
+    "score": 0.75,
+    "passed": false
+  },
+  "result": {
+    "summary": "The store with the highest average customer rating is **Narjis** with an average rating of **4.5**.",
+    "findings": [
+      {
+        "statement": "Narjis has the highest average rating.",
+        "evidence": "Narjis         4.5",
+        "method": "SQL aggregation",
+        "code": "SELECT store, AVG(rating) AS avg_rating FROM store_ratings GROUP BY store ORDER BY avg_rating DESC LIMIT 1;"
+      },
+      {
+        "statement": "Store ratings have no missing values.",
+        "evidence": "nulls=0 (0.0%)",
+        "method": "Dataset profiling",
+        "code": "profile_dataset('store_ratings')"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "337 duplicate rows detected (may affect average calculations if duplicates are non-unique entries).",
+      "All ratings are integers between 2 and 5, with no nulls."
+    ],
+    "assumptions": [
+      "Duplicate rows represent repeated ratings rather than data entry errors.",
+      "The SQL query correctly computes averages per store."
+    ],
+    "limitations": [
+      "Sample data only shows 5 rows, but full dataset includes 349 entries."
+    ],
+    "confidence": "high"
+  }
+}
