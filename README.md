@@ -109,7 +109,7 @@ Real example (from the eval run, `qwen3.5:9b`, shortened):
 
 ```json
 {
-  "summary": "North region has the highest total sales amount at $15,042.75",
+  "summary": "North region has the highest total sales amount at 15,042.75",
   "findings": [
     {
       "statement": "The North region has the highest total sales among all regions.",
@@ -128,8 +128,6 @@ Real example (from the eval run, `qwen3.5:9b`, shortened):
   "confidence": "medium"
 }
 ```
-
-(The `$` was added by the model. The data has no currency; see [Limitations](#limitations).)
 
 ### How failures come back
 
@@ -279,6 +277,11 @@ You can also pass settings or a ready-made model in code, e.g. for tests:
   rounding and percent/fraction conversions). Findings that fail are **removed**, a note
   is added to `limitations`, and `confidence` is lowered. Unsupported numbers in the
   `summary` are flagged too.
+- **No invented currencies.** A currency is accepted only if the data (values or column
+  names, e.g. `amount_usd`), the question or the `context` mentions it. Otherwise a
+  symbol such as `$` is removed from the summary and findings, with a note in
+  `limitations`. A currency name or code (`USD`, `riyals`, ...) is flagged and
+  `confidence` is lowered.
 - **Reproducible.** Every finding includes the code that produced it.
 - **Data quality first.** The agent is instructed to profile each table (nulls,
   duplicates, outliers, types) before concluding, and to report what it found.
@@ -308,8 +311,10 @@ Also:
 - **No memory limit** on executed code. A large allocation can exhaust the host's memory.
 - **No cleanup** of `AGENT_OUTPUT_DIR`. Each run leaves a workspace folder there, so
   schedule cleanup in production.
-- **Units are not verified.** The number check confirms figures, not units: a model can
-  add a currency symbol (`$`) that is not in the data. Put units in `context` to help.
+- **Only currencies are checked, not other units.** An invented unit such as `kg` or `km`
+  is not caught. The known currencies are USD, EUR, GBP,
+  JPY, INR, SAR and AED; others are not checked. State units in `context` so the agent
+  can use them.
 - **Rounding tolerance.** A figure written as `15,000` matches a true value of `15,042.75`.
   The check catches invented numbers, not imprecise ones.
 - **Data size:** files are loaded on one machine, so very large datasets need more

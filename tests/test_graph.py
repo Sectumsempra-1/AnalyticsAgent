@@ -216,3 +216,14 @@ def test_works_as_subgraph_of_a_researcher(settings: Settings, fixture_files: di
     parent.add_edge("analyst", END)
     out = parent.compile().invoke({"question": "Total?", "files": [str(fixture_files["sales"])]})
     assert AnalysisResult.model_validate(out["analysis"]).findings == [TOTAL_FINDING]
+
+
+@pytest.mark.parametrize(("context", "summary"), [(None, "Total is 1395.5."), ("amount is in USD", "Total is $1395.5.")])
+def test_currency_check_uses_the_request_context(
+    context: str | None, summary: str, settings: Settings, fixture_files: dict[str, Path]
+) -> None:
+    model = ScriptedModel(
+        turns=[tool_call("run_sql", query=SUM_SQL)], reports=[report(TOTAL_FINDING, summary="Total is $1395.5.")]
+    )
+    result = AnalysisResult.model_validate(run(model, settings, fixture_files, context=context))
+    assert result.summary == summary

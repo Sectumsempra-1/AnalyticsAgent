@@ -31,7 +31,9 @@ def case(
         "id": id, "title": title, "skill": skill, "question": question, "datasets": datasets,
         "context": expect.pop("context", None), "max_steps": expect.pop("max_steps", 12),
         "expect_numbers": expect.pop("numbers", []), "expect_mentions": expect.pop("mentions", []),
-        "expect_quality": expect.pop("quality", []), "forbid": expect.pop("forbid", []),
+        "expect_quality": expect.pop("quality", []),
+        # "$" is forbidden unless the data itself uses it: an invented currency is an error
+        "forbid": expect.pop("forbid", []) + ([] if expect.pop("has_dollars", False) else ["$"]),
     }  # fmt: skip
 
 
@@ -240,7 +242,7 @@ def messy_amounts(rng: np.random.Generator) -> Case:
         "messy_numbers", "Amounts stored as text", "Type cleaning",
         "What is the total invoice amount?",
         ["invoices.csv"],
-        numbers=[number("total invoiced", total)],
+        numbers=[number("total invoiced", total)], has_dollars=True,
         quality=[["text", "string", "format", "type", "$", "currency symbol"], ["blank", "missing", "empty", "null"]],
     )  # fmt: skip
 

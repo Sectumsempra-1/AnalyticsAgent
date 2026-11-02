@@ -212,7 +212,8 @@ class _Nodes:
 
     def verify(self, state: AgentState) -> dict[str, Any]:
         drafted = AnalysisResult.model_validate({k: state[k] for k in AnalysisResult.model_fields if k in state})
-        result = verify_result(drafted, state.get("tool_outputs", []))
+        request_text = "\n".join([state.get("question", ""), state.get("context") or ""])
+        result = verify_result(drafted, state.get("tool_outputs", []), request_text)
         removed = len(drafted.findings) - len(result.findings)
         workspace = self._workspace(state)
         extra = [state["stop_reason"]] if state.get("stop_reason") else []

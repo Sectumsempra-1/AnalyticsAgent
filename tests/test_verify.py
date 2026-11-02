@@ -76,3 +76,54 @@ def test_unsupported_summary_number_is_flagged() -> None:
 def test_no_tool_outputs_means_low_confidence() -> None:
     out = verify_result(result(finding("Total 1395.5", "1395.5")), [])
     assert out.findings == [] and out.confidence == "low"
+
+
+def test_invented_dollar_sign_is_removed() -> None:
+    out = verify_result(
+        result(finding("North leads with $1,395.5", "total = $1395.5"), summary="Total is $1,395.5."), [TOOL_OUTPUT]
+    )
+    assert out.summary == "Total is 1,395.5."
+    assert out.findings[0].statement == "North leads with 1,395.5"
+    assert out.findings[0].evidence == "total = 1395.5"
+    assert out.confidence == "high"  # the text is now correct, so confidence stays
+    assert any("Removed currency symbol '$'" in note for note in out.limitations)
+
+
+@pytest.mark.parametrize(
+    ("written", "expected"), [("US$1395.5", "1395.5"), ("1395.5 €", "1395.5"), ("€-1395.5", "-1395.5")]
+)
+def test_symbol_forms(written: str, expected: str) -> None:
+    out = verify_result(result(summary=f"Total {written}."), [TOOL_OUTPUT])
+    assert out.summary == f"Total {expected}."
+
+
+@pytest.mark.parametrize(
+    ("support", "request_text"),
+    [
+        ("amount_usd\n1395.5", ""),  # column name
+        ("total\n$1,395.50", ""),  # the data itself uses $
+        (TOOL_OUTPUT, "All amounts are in US dollars."),  # the context says so
+    ],
+)
+def test_supported_dollar_sign_is_kept(support: str, request_text: str) -> None:
+    out = verify_result(result(summary="Total is $1,395.5."), [support], request_text)
+    assert out.summary == "Total is $1,395.5."
+    assert not any("currency" in note for note in out.limitations)
+
+
+def test_invented_currency_name_is_flagged() -> None:
+    out = verify_result(result(finding("Total is 1395.5 SAR", "1395.5"), summary="1395.5 riyals."), [TOOL_OUTPUT])
+    assert len(out.findings) == 1  # numbers are fine, so the finding stays
+    assert out.confidence == "medium"
+    assert any("(SAR)" in note and "unverified" in note for note in out.limitations)
+
+
+def test_currency_from_context_is_accepted() -> None:
+    out = verify_result(result(summary="Median salary is 1395.5 SAR."), [TOOL_OUTPUT], "monthly_salary is in SAR.")
+    assert out.confidence == "high" and out.limitations == []
+
+
+def test_currency_words_need_whole_words() -> None:
+    # "sar" inside another word, or "rial" inside "material", is not a currency
+    out = verify_result(result(summary="Tsar material total 1395.5."), [TOOL_OUTPUT])
+    assert out.confidence == "high" and out.limitations == []
