@@ -1,0 +1,88 @@
+{
+  "score": {
+    "case_id": "small_sample",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "Narjis review count",
+        "passed": false
+      },
+      {
+        "kind": "mention",
+        "label": "narjis",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "sample / only 4 / few / limited / 4 ratings / 4 reviews",
+        "passed": true
+      },
+      {
+        "kind": "forbid",
+        "label": "does not state '$'",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 59.59667569999874,
+    "steps": 3,
+    "tokens": 8692,
+    "report_attempts": 2,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "Narjis has the highest average customer rating at 4.5 among all stores.",
+    "score": 0.8,
+    "passed": false
+  },
+  "result": {
+    "summary": "Narjis has the highest average customer rating at 4.5 among all stores.",
+    "findings": [
+      {
+        "statement": "Narjis has the highest average customer rating at 4.5.",
+        "evidence": "store avg_rating Narjis 4.500000",
+        "method": "SQL aggregation with AVG() grouped by store and ordered by descending average rating",
+        "code": "SELECT store, AVG(rating) as avg_rating FROM store_ratings GROUP BY store ORDER BY avg_rating DESC"
+      },
+      {
+        "statement": "Olaya has the second highest average rating at 4.04.",
+        "evidence": "store avg_rating Olaya 4.035714",
+        "method": "SQL aggregation with AVG() grouped by store and ordered by descending average rating",
+        "code": "SELECT store, AVG(rating) as avg_rating FROM store_ratings GROUP BY store ORDER BY avg_rating DESC"
+      },
+      {
+        "statement": "Malqa has the third highest average rating at 3.88.",
+        "evidence": "store avg_rating Malqa 3.881818",
+        "method": "SQL aggregation with AVG() grouped by store and ordered by descending average rating",
+        "code": "SELECT store, AVG(rating) as avg_rating FROM store_ratings GROUP BY store ORDER BY avg_rating DESC"
+      },
+      {
+        "statement": "Rawdah has the lowest average rating at 3.73.",
+        "evidence": "store avg_rating Rawdah 3.726316",
+        "method": "SQL aggregation with AVG() grouped by store and ordered by descending average rating",
+        "code": "SELECT store, AVG(rating) as avg_rating FROM store_ratings GROUP BY store ORDER BY avg_rating DESC"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "Duplicate rows: 337 out of 349 total rows (96.6% duplicates)",
+      "No null values in either column",
+      "Rating is integer type with values ranging from 2 to 5"
+    ],
+    "assumptions": [
+      "Average rating calculated across all ratings for each store",
+      "Duplicate rows were included in the average calculation as they represent repeated measurements"
+    ],
+    "limitations": [
+      "Large number of duplicate rows (337) may indicate data entry issues or intentional repetition",
+      "Only 4 distinct stores in the dataset",
+      "Rating scale is limited to integers 2-5, no ratings of 1 observed"
+    ],
+    "confidence": "high"
+  }
+}

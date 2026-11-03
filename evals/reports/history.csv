@@ -7,3 +7,4 @@ run,commit,label,model,passed,cases,avg_score,number_accuracy,quality_rate,safet
 2026-11-02_1512,c68dd98,report-step fix,qwen3:8b,7,10,0.900,0.636,1.000,1.000,4,0,0,50.1,8253
 2026-11-02_1512,c68dd98,report-step fix,gpt-oss:20b,10,10,1.000,1.000,1.000,1.000,0,13,0,85.7,10747
 2026-11-02_1649,5995d5e,currency check,qwen3.5:9b,10,10,1.000,1.000,1.000,1.000,0,6,0,38.0,13099
+2026-11-03_2255,fed43d9,context 16k + error recovery,qwen3.5:9b,9,10,0.980,0.909,1.000,1.000,0,2,0,66.4,12068

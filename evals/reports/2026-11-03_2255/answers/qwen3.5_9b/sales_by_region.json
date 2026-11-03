@@ -1,0 +1,75 @@
+{
+  "score": {
+    "case_id": "sales_by_region",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "north total",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "north",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "duplicate",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "null / missing / empty / blank",
+        "passed": true
+      },
+      {
+        "kind": "forbid",
+        "label": "does not state '$'",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 35.74878400000307,
+    "steps": 3,
+    "tokens": 6655,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "medium",
+    "summary": "North region has the highest total sales amount of 15042.75",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "North region has the highest total sales amount of 15042.75",
+    "findings": [
+      {
+        "statement": "The North region has the highest total sales amount among all regions in the dataset.",
+        "evidence": "north     15042.75",
+        "method": "SQL aggregation (SUM) grouped by region, ordered by total_sales DESC",
+        "code": "SELECT region, SUM(amount) as total_sales FROM sales_by_region WHERE region IS NOT NULL GROUP BY region ORDER BY total_sales DESC"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "Duplicate rows: 5 duplicate rows found in the dataset",
+      "Null values in region column: 12 nulls (3.0%) - these were filtered out in analysis",
+      "No nulls in order_id or amount columns"
+    ],
+    "assumptions": [
+      "Analysis only includes rows with non-null region values",
+      "Total sales amounts are summed as-is without currency conversion"
+    ],
+    "limitations": [
+      "Duplicate rows may affect accuracy of totals if not deduplicated first",
+      "Small sample sizes in some regions could impact reliability (west has 96 rows, north has 119 rows)",
+      "No outlier analysis was performed on amount values"
+    ],
+    "confidence": "medium"
+  }
+}

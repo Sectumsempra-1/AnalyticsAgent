@@ -1,0 +1,64 @@
+{
+  "score": {
+    "case_id": "messy_numbers",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "total invoiced",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "text / string / format / type / $ / currency symbol",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "blank / missing / empty / null",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 59.70649709999998,
+    "steps": 8,
+    "tokens": 20852,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "medium",
+    "summary": "Total invoice amount: 202,682.05",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Total invoice amount: 202,682.05",
+    "findings": [
+      {
+        "statement": "The total of all valid invoice amounts in the invoices table is 202,682.05.",
+        "evidence": "total_amount    202682.05",
+        "method": "SQL aggregation with SUM after cleaning string-formatted amounts",
+        "code": "SELECT SUM(CAST(REPLACE(REPLACE(amount, '$', ''), ',', '') AS DOUBLE)) as total_amount FROM invoices WHERE amount IS NOT NULL"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "4 rows (5.0%) have null/missing amounts in the amount column",
+      "Amount values are stored as strings with '$' and ',' characters requiring cleaning before numeric conversion",
+      "No duplicate rows found"
+    ],
+    "assumptions": [
+      "All non-null amount values are valid invoice amounts",
+      "The 4 null amounts represent missing data rather than zero-value invoices"
+    ],
+    "limitations": [
+      "4 invoices have missing amounts that could not be included in the total",
+      "Amounts were stored as strings requiring text processing before numeric calculation"
+    ],
+    "confidence": "medium"
+  }
+}

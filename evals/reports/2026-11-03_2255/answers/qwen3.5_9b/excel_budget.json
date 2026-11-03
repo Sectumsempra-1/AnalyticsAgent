@@ -1,0 +1,79 @@
+{
+  "score": {
+    "case_id": "excel_budget",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "marketing overspend",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "marketing",
+        "passed": true
+      },
+      {
+        "kind": "forbid",
+        "label": "does not state '$'",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 49.14122340000176,
+    "steps": 3,
+    "tokens": 8243,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "Marketing overspent its budget by the largest amount, with an overspend of 152,200.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Marketing overspent its budget by the largest amount, with an overspend of 152,200.",
+    "findings": [
+      {
+        "statement": "Marketing had the largest overspend at 152,200, spending 643,200 against a budget of 491,000.",
+        "evidence": "marketing 491000 643200 152200",
+        "method": "SQL join and subtraction to calculate overspend per department",
+        "code": "SELECT b.department, b.budget, a.actual, (a.actual - b.budget) AS overspend FROM budget_2025_budget b JOIN budget_2025_actual a ON b.department = a.department ORDER BY overspend DESC"
+      },
+      {
+        "statement": "IT was the second largest overspender at 24,700.",
+        "evidence": "it 357000 381700 24700",
+        "method": "SQL join and subtraction to calculate overspend per department",
+        "code": "SELECT b.department, b.budget, a.actual, (a.actual - b.budget) AS overspend FROM budget_2025_budget b JOIN budget_2025_actual a ON b.department = a.department ORDER BY overspend DESC"
+      },
+      {
+        "statement": "Facilities had the smallest overspend at 200.",
+        "evidence": "facilities 216000 216200 200",
+        "method": "SQL join and subtraction to calculate overspend per department",
+        "code": "SELECT b.department, b.budget, a.actual, (a.actual - b.budget) AS overspend FROM budget_2025_budget b JOIN budget_2025_actual a ON b.department = a.department ORDER BY overspend DESC"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No null values in either table",
+      "No duplicate rows in either table",
+      "All departments have matching entries between budget and actual tables",
+      "Data types are consistent: department as string, budget/actual as integers"
+    ],
+    "assumptions": [
+      "Budget and actual spending are for the same fiscal year 2025",
+      "Each department appears exactly once in both tables",
+      "Overspend is calculated as actual minus budget (positive = overspent)"
+    ],
+    "limitations": [
+      "Only 8 departments are included in the dataset",
+      "No information about the time period covered by the budget and actual figures",
+      "Cannot determine if overspending was intentional or due to external factors"
+    ],
+    "confidence": "high"
+  }
+}

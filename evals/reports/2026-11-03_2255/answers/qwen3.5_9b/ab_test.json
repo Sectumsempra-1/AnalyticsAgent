@@ -1,0 +1,79 @@
+{
+  "score": {
+    "case_id": "ab_test",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "conversion rate A",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "conversion rate B",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "significant",
+        "passed": true
+      },
+      {
+        "kind": "forbid",
+        "label": "does not state '$'",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 85.75473069999862,
+    "steps": 5,
+    "tokens": 13729,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "Variant B converted better than Variant A (12.97% vs 9.87%), and the difference is statistically significant (p-value = 0.00016).",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Variant B converted better than Variant A (12.97% vs 9.87%), and the difference is statistically significant (p-value = 0.00016).",
+    "findings": [
+      {
+        "statement": "Variant B had a higher conversion rate than Variant A.",
+        "evidence": "Variant A: 296/3000 = 9.87%; Variant B: 389/3000 = 12.97%",
+        "method": "SQL aggregation to count conversions per variant",
+        "code": "SELECT \n    variant,\n    COUNT(*) as total_users,\n    SUM(converted) as converted_count,\n    CAST(SUM(converted) AS FLOAT) / COUNT(*) * 100 as conversion_rate_pct\nFROM ab_test\nGROUP BY variant\nORDER BY variant"
+      },
+      {
+        "statement": "The difference in conversion rates is statistically significant.",
+        "evidence": "Z-score: 3.7754; P-value: 1.597584e-04; Statistically significant (alpha=0.05): True",
+        "method": "Two-proportion z-test using Python with scipy.stats",
+        "code": "import pandas as pd\nfrom scipy import stats\n\ntables = {'ab_test': ab_test}\nvariant_a = tables['ab_test'][tables['ab_test']['variant'] == 'A']['converted'].sum()\nn_a = len(tables['ab_test'][tables['ab_test']['variant'] == 'A'])\nvariant_b = tables['ab_test'][tables['ab_test']['variant'] == 'B']['converted'].sum()\nn_b = len(tables['ab_test'][tables['ab_test']['variant'] == 'B'])\np1 = variant_a / n_a\np2 = variant_b / n_b\np_pooled = (variant_a + variant_b) / (n_a + n_b)\nse = ((p_pooled * (1 - p_pooled)) * (1/n_a + 1/n_b)) ** 0.5\nz_score = (p2 - p1) / se\np_value = stats.norm.sf(abs(z_score)) * 2"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No null values in any column",
+      "No duplicate rows",
+      "No outliers detected",
+      "All columns have correct data types (int64 for user_id and converted, str for variant)"
+    ],
+    "assumptions": [
+      "Two-proportion z-test assumes independent samples between variants",
+      "Conversion events follow a binomial distribution",
+      "Sample sizes are equal (3000 users per variant)",
+      "The test is two-tailed but we interpret the one-sided difference in favor of Variant B"
+    ],
+    "limitations": [
+      "Only two variants tested; results may not generalize to other variants",
+      "No information about user demographics or segment-level analysis",
+      "Conversion rate alone does not account for cost or other business metrics"
+    ],
+    "confidence": "high"
+  }
+}
