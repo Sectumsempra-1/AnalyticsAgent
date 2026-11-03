@@ -22,6 +22,7 @@ class Settings:
     model_base_url: str | None = None
     model_temperature: float = 0.0
     structured_output_method: str = "function_calling"
+    context_tokens: int = 16384  # Ollama only (num_ctx); its own default of 4096 is too small
     output_dir: Path = Path("outputs")
     run_timeout_s: float = 600.0
     tool_timeout_s: float = 30.0
@@ -42,6 +43,7 @@ class Settings:
             model_base_url=os.getenv("MODEL_BASE_URL") or None,
             model_temperature=_float("MODEL_TEMPERATURE", 0.0),
             structured_output_method=method,
+            context_tokens=int(_float("MODEL_CONTEXT_TOKENS", 16384)),
             output_dir=Path(os.getenv("AGENT_OUTPUT_DIR", "outputs")),
             run_timeout_s=_float("AGENT_RUN_TIMEOUT_S", 600.0),
             tool_timeout_s=_float("AGENT_TOOL_TIMEOUT_S", 30.0),

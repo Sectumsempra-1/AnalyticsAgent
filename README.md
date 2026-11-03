@@ -242,6 +242,7 @@ environment variables take precedence over `.env`. The template is `.env.example
 | `MODEL_PROVIDER` | (inferred) | Any [`init_chat_model`](https://python.langchain.com/api_reference/langchain/chat_models/langchain.chat_models.base.init_chat_model.html) provider: `ollama`, `openai`, `azure_openai`, `anthropic`, ... Install its package too. |
 | `MODEL_BASE_URL` | (provider default) | Custom endpoint: a company-hosted or OpenAI-compatible server, or a remote Ollama. |
 | `MODEL_TEMPERATURE` | `0` | Keep at 0 for repeatable analysis. |
+| `MODEL_CONTEXT_TOKENS` | `16384` | Ollama only: the model's context window (`num_ctx`). Ollama's own default (4096) is too small and silently drops the start of the conversation. Cloud providers ignore it. |
 | `MODEL_STRUCTURED_OUTPUT_METHOD` | `function_calling` | How the final report is requested: `function_calling`, `json_schema` or `json_mode`. If two attempts fail, a final `json_schema` attempt is made automatically. |
 | `AGENT_OUTPUT_DIR` | `outputs` | Where run workspaces (converted data, charts) are written. |
 | `AGENT_RUN_TIMEOUT_S` | `600` | Total time limit for one run, including dataset loading. |

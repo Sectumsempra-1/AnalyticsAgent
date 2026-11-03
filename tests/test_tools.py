@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from analytics_agent.tools import Workspace, make_tools, table_name
+from analytics_agent.tools import Workspace, make_tools, short_traceback, table_name
 from tests.conftest import INJECTION, LONG_NOTE, SALES_AMOUNT_SUM
 
 
@@ -156,6 +156,22 @@ def test_python_traceback_uses_user_line_numbers(ws: Workspace) -> None:
     out = ws.run_python("a = 1\nb = 2\nraise ValueError('boom')")
     assert 'File "<code>", line 3' in out
     assert "raise ValueError('boom')" in out
+
+
+def test_python_error_hides_library_frames(ws: Workspace) -> None:
+    # a KeyError from pandas is a long chained traceback through pandas internals
+    out = ws.run_python("x = 1\nsales['no_such_column']")
+    assert 'File "<code>", line 2' in out and "sales['no_such_column']" in out
+    assert out.rstrip().endswith("KeyError: 'no_such_column'")
+    assert "pandas" not in out and "direct cause" not in out
+    assert len(out) < 400
+
+
+def test_short_traceback_leaves_other_errors_alone() -> None:
+    text = '  File "<code>", line 1\n    x = (\n        ^\nSyntaxError: unexpected EOF'
+    assert short_traceback(text) == text  # no traceback header: unchanged
+    lib_only = 'Traceback (most recent call last):\n  File "lib.py", line 1, in f\n    g()\nValueError: x'
+    assert short_traceback(lib_only) == lib_only  # nothing from <code>: keep everything
 
 
 def test_python_timeout_message(fixture_files: dict[str, Path], tmp_path: Path) -> None:

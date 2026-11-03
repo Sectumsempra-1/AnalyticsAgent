@@ -66,6 +66,9 @@ def load_model(settings: Settings) -> BaseChatModel:
     kwargs: dict[str, Any] = {"temperature": settings.model_temperature}
     if settings.model_base_url:
         kwargs["base_url"] = settings.model_base_url
+    if settings.model_provider == "ollama":
+        # Ollama silently drops the start of the conversation beyond num_ctx
+        kwargs["num_ctx"] = settings.context_tokens
     model = init_chat_model(settings.model_name, model_provider=settings.model_provider, **kwargs)
     assert isinstance(model, BaseChatModel)
     return model

@@ -7,7 +7,7 @@ from langgraph.graph import END, START, StateGraph
 from pydantic import ValidationError
 
 from analytics_agent.config import Settings
-from analytics_agent.graph import build_agent
+from analytics_agent.graph import build_agent, load_model
 from analytics_agent.schemas import AnalysisRequest, AnalysisResult, Finding
 from tests.conftest import SALES_AMOUNT_SUM
 from tests.fake_model import ScriptedModel, tool_call
@@ -227,3 +227,18 @@ def test_currency_check_uses_the_request_context(
     )
     result = AnalysisResult.model_validate(run(model, settings, fixture_files, context=context))
     assert result.summary == summary
+
+
+@pytest.mark.parametrize(("provider", "expected"), [("ollama", 16384), ("openai", None)])
+def test_context_window_is_set_for_ollama_only(
+    provider: str, expected: int | None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    seen: dict[str, Any] = {}
+
+    def fake_init(name: str, **kwargs: Any) -> ScriptedModel:
+        seen.update(kwargs)
+        return ScriptedModel()
+
+    monkeypatch.setattr("analytics_agent.graph.init_chat_model", fake_init)
+    load_model(Settings(model_name="m", model_provider=provider))
+    assert seen.get("num_ctx") == expected

@@ -89,3 +89,9 @@ def test_render_lists_sections_and_skips_empty_ones() -> None:
     text = render(result)
     assert "Data quality\n------------\n- 2 null regions" in text
     assert "Limitations" in text and "Findings" not in text and "Charts" not in text
+
+
+def test_chart_paths_are_not_wrapped(tmp_path: Path) -> None:
+    long_path = tmp_path / "a folder with spaces" / ("x" * 90) / "chart_01.png"
+    text = render(AnalysisResult(summary="s", charts=[str(long_path)], confidence="low"))
+    assert f"- {long_path.resolve()}" in text.splitlines()

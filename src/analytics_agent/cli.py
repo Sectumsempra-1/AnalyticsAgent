@@ -119,11 +119,12 @@ def render(result: AnalysisResult, show_code: bool = False) -> str:
         ("Data quality", result.data_quality_notes),
         ("Assumptions", result.assumptions),
         ("Limitations", result.limitations),
-        ("Charts", [str(Path(c).resolve()) for c in result.charts]),
     ]
     for title, items in sections:
         if items:
             out += [_heading(title), *(_wrap(item, "- ") for item in items), ""]
+    if result.charts:  # paths are never wrapped, so they can be copied
+        out += [_heading("Charts"), *(f"- {Path(c).resolve()}" for c in result.charts), ""]
     return "\n".join(out).rstrip() + "\n"
 
 

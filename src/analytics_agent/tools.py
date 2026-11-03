@@ -215,11 +215,40 @@ def format_result(result: ExecutionResult, timeout_s: float) -> str:
     if result.exit_code is None:
         return "Error: output limit exceeded and the run was stopped. Print less output."
     if result.exit_code != 0:
-        return f"Error:\n{result.stderr.strip()}\n{result.stdout}".rstrip()
+        return f"Error:\n{short_traceback(result.stderr.strip())}\n{result.stdout}".rstrip()
     text = result.stdout.rstrip() or "(no output)"
     if result.stderr.strip():
         text += f"\n[stderr]\n{result.stderr.strip()}"
     return text
+
+
+def short_traceback(stderr: str) -> str:
+    """Keep only the frames from the model's own code (<code>) and the error itself.
+
+    Library internals (pandas, numpy, ...) and earlier chained tracebacks are dropped:
+    they cost context and hide the line the model needs to fix. Text without a
+    traceback from <code> is returned unchanged."""
+    start = stderr.rfind(_TRACEBACK_HEADER)
+    if start < 0:
+        return stderr
+    frames: list[list[str]] = []
+    tail: list[str] = []
+    for line in stderr[start:].splitlines()[1:]:
+        if line.startswith("  File ") and not tail:
+            frames.append([line])
+        elif line.startswith("    ") and frames and not tail:
+            frames[-1].append(line)
+        else:
+            tail.append(line)
+    own = [frame for frame in frames if '"<code>"' in frame[0]]
+    if not own:
+        return stderr
+    before = stderr[:start].strip()
+    keep_before = [before] if before and _TRACEBACK_HEADER not in before else []  # e.g. warnings
+    return "\n".join([*keep_before, _TRACEBACK_HEADER, *(line for frame in own for line in frame), *tail])
+
+
+_TRACEBACK_HEADER = "Traceback (most recent call last):"
 
 
 def table_name(stem: str, sheet: str | None, taken: Iterable[str]) -> str:
