@@ -350,7 +350,12 @@ accuracy against the known answers, required mentions (e.g. "confound" in the
 correlation trap), data-quality issues found, forbidden content (e.g. the injected
 number or an invented `$`), and whether a requested chart was saved. Speed and token use are recorded too.
 
-Latest results (`evals/reports/2026-11-02_1512`, local RTX 3060 Ti 8 GB):
+Latest result for the default model (`evals/reports/2026-11-04_1740`, 11 cases, local
+RTX 3060 Ti 8 GB, 16k context): **qwen3.5:9b passed 11 / 11 (100%), 62 s per case on
+average.** With a 16k context the model no longer fits entirely on an 8 GB GPU, so it runs
+slower than in the earlier 4k-context runs, which lost context on longer analyses.
+
+Earlier 4-model comparison (`evals/reports/2026-11-02_1512`, the first 10 cases, 4k context):
 
 | Model | Passed | Score | Avg time / case |
 |---|---|---|---|

@@ -1,0 +1,64 @@
+{
+  "score": {
+    "case_id": "join_segments",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "corporate revenue",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "corporate",
+        "passed": true
+      },
+      {
+        "kind": "forbid",
+        "label": "does not state '$'",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 44.40341400000034,
+    "steps": 3,
+    "tokens": 8028,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "Corporate segment generates the most revenue at 210905.52.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Corporate segment generates the most revenue at 210905.52.",
+    "findings": [
+      {
+        "statement": "The corporate customer segment generates the highest total revenue among all segments.",
+        "evidence": "corporate: 271 orders, 210905.52 total revenue; retail: 469 orders, 162517.99 total revenue; government: 60 orders, 20909.96 total revenue",
+        "method": "SQL aggregation with JOIN between orders and customers tables, grouped by segment and summed order_value",
+        "code": "SELECT c.segment, COUNT(*) as order_count, SUM(o.order_value) as total_revenue FROM orders o JOIN customers c ON o.customer_id = c.customer_id GROUP BY c.segment ORDER BY total_revenue DESC"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "orders table: 0 nulls in any column (0.0% for all columns)",
+      "orders table: 0 duplicate rows",
+      "customers table: 0 nulls in any column",
+      "customers table: 0 duplicate rows"
+    ],
+    "assumptions": [
+      "Revenue is calculated as sum of order_value from orders table",
+      "Customer segments are defined in customers.parquet segment column"
+    ],
+    "limitations": [
+      "All three segments have more than 30 rows (corporate: 271, retail: 469, government: 60), so no small sample concerns"
+    ],
+    "confidence": "high"
+  }
+}

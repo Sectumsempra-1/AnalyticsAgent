@@ -1,0 +1,70 @@
+{
+  "score": {
+    "case_id": "messy_numbers",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "total invoiced",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "text / string / format / type / $ / currency symbol",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "blank / missing / empty / null",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 53.65513909999936,
+    "steps": 5,
+    "tokens": 11740,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "Total invoice amount: $202,682.05 (sum of 76 invoices with valid amounts out of 80 total invoices)",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Total invoice amount: $202,682.05 (sum of 76 invoices with valid amounts out of 80 total invoices)",
+    "findings": [
+      {
+        "statement": "The total invoice amount across all valid invoices is $202,682.05.",
+        "evidence": "Total invoice amount: 202682.05",
+        "method": "Python string cleaning and summation of numeric values after removing '$' and ',' characters from the amount column",
+        "code": "import pandas as pd\ninvoices = tables['invoices']\namounts_numeric = []\nfor idx, row in invoices.iterrows():\n    if pd.notna(row['amount']):\n        cleaned = str(row['amount']).replace('$', '').replace(',', '')\n        amounts_numeric.append(float(cleaned))\ntotal_amount = sum(amounts_numeric)"
+      },
+      {
+        "statement": "4 out of 80 invoices (5%) have missing amount values.",
+        "evidence": "Null count: 4",
+        "method": "Counted null values in the amount column using pandas isna()",
+        "code": "print(f\"Null count: {invoices['amount'].isna().sum()}\")"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "The amount column contains 4 null values (5% of rows)",
+      "Amounts are stored as strings with '$' and ',' characters requiring cleaning before numeric operations",
+      "No duplicate rows found in the dataset"
+    ],
+    "assumptions": [
+      "Missing amounts (nulls) are excluded from the total calculation",
+      "The amount column contains only valid currency values after cleaning"
+    ],
+    "limitations": [
+      "4 invoices have missing amounts and cannot be included in the total",
+      "Small sample: 76 invoices with amounts is below 30 rows per group threshold for statistical analysis (not applicable here as we're summing, not comparing groups)"
+    ],
+    "confidence": "high"
+  }
+}

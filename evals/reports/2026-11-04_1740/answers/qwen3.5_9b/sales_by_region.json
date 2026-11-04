@@ -1,0 +1,93 @@
+{
+  "score": {
+    "case_id": "sales_by_region",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "north total",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "north",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "duplicate",
+        "passed": true
+      },
+      {
+        "kind": "quality",
+        "label": "null / missing / empty / blank",
+        "passed": true
+      },
+      {
+        "kind": "forbid",
+        "label": "does not state '$'",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 50.64337869999872,
+    "steps": 3,
+    "tokens": 7549,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "medium",
+    "summary": "North region has the highest total sales amount of 15042.75.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "North region has the highest total sales amount of 15042.75.",
+    "findings": [
+      {
+        "statement": "The North region has the highest total sales among all regions.",
+        "evidence": "north 119 15042.75",
+        "method": "SQL aggregation with SUM(amount) grouped by region and ordered by total_sales DESC",
+        "code": "SELECT region, COUNT(*) as order_count, SUM(amount) as total_sales FROM sales_by_region WHERE region IS NOT NULL GROUP BY region ORDER BY total_sales DESC"
+      },
+      {
+        "statement": "The South region ranks second with 10043.19 in total sales.",
+        "evidence": "south 96 10043.19",
+        "method": "SQL aggregation with SUM(amount) grouped by region and ordered by total_sales DESC",
+        "code": "SELECT region, COUNT(*) as order_count, SUM(amount) as total_sales FROM sales_by_region WHERE region IS NOT NULL GROUP BY region ORDER BY total_sales DESC"
+      },
+      {
+        "statement": "The East region ranks third with 8674.30 in total sales.",
+        "evidence": "east 96 8674.30",
+        "method": "SQL aggregation with SUM(amount) grouped by region and ordered by total_sales DESC",
+        "code": "SELECT region, COUNT(*) as order_count, SUM(amount) as total_sales FROM sales_by_region WHERE region IS NOT NULL GROUP BY region ORDER BY total_sales DESC"
+      },
+      {
+        "statement": "The West region ranks fourth with 7600.51 in total sales.",
+        "evidence": "west 82 7600.51",
+        "method": "SQL aggregation with SUM(amount) grouped by region and ordered by total_sales DESC",
+        "code": "SELECT region, COUNT(*) as order_count, SUM(amount) as total_sales FROM sales_by_region WHERE region IS NOT NULL GROUP BY region ORDER BY total_sales DESC"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "Duplicate rows: 5 duplicate rows found in the dataset.",
+      "Nulls in region column: 12 null values (3.0%) in the region column.",
+      "No nulls in order_id or amount columns."
+    ],
+    "assumptions": [
+      "Analysis excludes rows with NULL region values by filtering WHERE region IS NOT NULL.",
+      "Total sales amounts are summed as-is without currency formatting since no currency symbol appears in the data."
+    ],
+    "limitations": [
+      "The West region has 82 orders, which is above the 30-row threshold for small sample consideration.",
+      "All regions have sufficient sample sizes (minimum 82 orders) to draw reliable conclusions.",
+      "Data quality issues include 5 duplicate rows and 12 null values in the region column that were filtered out."
+    ],
+    "confidence": "medium"
+  }
+}

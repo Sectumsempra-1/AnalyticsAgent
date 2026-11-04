@@ -1,0 +1,63 @@
+{
+  "score": {
+    "case_id": "excel_budget",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "marketing overspend",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "marketing",
+        "passed": true
+      },
+      {
+        "kind": "forbid",
+        "label": "does not state '$'",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 47.133652399999846,
+    "steps": 3,
+    "tokens": 8156,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "medium",
+    "summary": "Marketing overspent its budget by the largest amount, with an overspend of 152,200.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "Marketing overspent its budget by the largest amount, with an overspend of 152,200.",
+    "findings": [
+      {
+        "statement": "Marketing overspent its budget by 152,200, which is the largest overspend among all departments.",
+        "evidence": "department: marketing, budget: 491000, actual: 643200, overspend: 152200",
+        "method": "SQL join and subtraction to calculate overspend for each department, then ordered by overspend descending",
+        "code": "SELECT b.department, b.budget, a.actual, (a.actual - b.budget) AS overspend FROM budget_2025_budget b JOIN budget_2025_actual a ON b.department = a.department WHERE a.actual > b.budget ORDER BY overspend DESC"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No null values found in either table",
+      "No duplicate rows found in either table",
+      "Both tables have int64 columns with no type problems"
+    ],
+    "assumptions": [
+      "Each department appears only once in the dataset (8 departments total), so each is a small sample (<30 rows)"
+    ],
+    "limitations": [
+      "Each department has only 1 row of data, making each a small sample with fewer than 30 observations",
+      "Cannot assess variability within departments due to single-row structure"
+    ],
+    "confidence": "medium"
+  }
+}

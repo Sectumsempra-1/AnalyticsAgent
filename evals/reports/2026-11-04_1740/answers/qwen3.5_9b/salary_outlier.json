@@ -1,0 +1,84 @@
+{
+  "score": {
+    "case_id": "salary_outlier",
+    "model": "qwen3.5:9b",
+    "checks": [
+      {
+        "kind": "valid",
+        "label": "valid AnalysisResult returned",
+        "passed": true
+      },
+      {
+        "kind": "number",
+        "label": "median salary",
+        "passed": true
+      },
+      {
+        "kind": "mention",
+        "label": "outlier / extreme / skew",
+        "passed": true
+      },
+      {
+        "kind": "forbid",
+        "label": "does not state '$'",
+        "passed": true
+      }
+    ],
+    "error": null,
+    "seconds": 88.70818809999946,
+    "steps": 4,
+    "tokens": 11200,
+    "report_attempts": 1,
+    "removed_findings": 0,
+    "confidence": "high",
+    "summary": "The typical monthly salary at this company is approximately 13,985 SAR (median). The mean of 18,728 SAR is inflated by an extreme outlier in the ops department.",
+    "score": 1.0,
+    "passed": true
+  },
+  "result": {
+    "summary": "The typical monthly salary at this company is approximately 13,985 SAR (median). The mean of 18,728 SAR is inflated by an extreme outlier in the ops department.",
+    "findings": [
+      {
+        "statement": "The median monthly salary across all employees is 13,985 SAR, which better represents typical compensation than the mean.",
+        "evidence": "median_salary=13985.0",
+        "method": "SQL aggregation with MEDIAN function",
+        "code": "SELECT COUNT(*) as total_employees, AVG(monthly_salary) as mean_salary, MEDIAN(monthly_salary) as median_salary, MIN(monthly_salary) as min_salary, MAX(monthly_salary) as max_salary, STDDEV(monthly_salary) as std_dev FROM salaries"
+      },
+      {
+        "statement": "The overall mean monthly salary is 18,727.75 SAR across all 200 employees.",
+        "evidence": "mean_salary=18727.75",
+        "method": "SQL aggregation with AVG function",
+        "code": "SELECT COUNT(*) as total_employees, AVG(monthly_salary) as mean_salary, MEDIAN(monthly_salary) as median_salary, MIN(monthly_salary) as min_salary, MAX(monthly_salary) as max_salary, STDDEV(monthly_salary) as std_dev FROM salaries"
+      },
+      {
+        "statement": "The ops department has an average salary of 43,238.75 SAR due to one extreme outlier (950,000 SAR), while its median is 14,405 SAR.",
+        "evidence": "ops: avg_salary=43238.750000, max_salary=950000.0",
+        "method": "SQL GROUP BY department with AVG and MAX functions",
+        "code": "SELECT department, COUNT(*) as employee_count, AVG(monthly_salary) as avg_salary, MEDIAN(monthly_salary) as median_salary, MIN(monthly_salary) as min_salary, MAX(monthly_salary) as max_salary FROM salaries GROUP BY department ORDER BY department"
+      },
+      {
+        "statement": "The salary range across all employees is 8,870 SAR to 950,000 SAR.",
+        "evidence": "min_salary=8870.0, max_salary=950000.0",
+        "method": "SQL aggregation with MIN and MAX functions",
+        "code": "SELECT COUNT(*) as total_employees, AVG(monthly_salary) as mean_salary, MEDIAN(monthly_salary) as median_salary, MIN(monthly_salary) as min_salary, MAX(monthly_salary) as max_salary, STDDEV(monthly_salary) as std_dev FROM salaries"
+      }
+    ],
+    "charts": [],
+    "data_quality_notes": [
+      "No null values in any column",
+      "No duplicate rows (0 duplicates)",
+      "Extreme outlier detected: one employee in ops department has monthly_salary=950000.0 SAR, which is 10x higher than the next highest value and significantly inflates the mean",
+      "All columns have correct data types (employee_id=int64, department=str, monthly_salary=float64)"
+    ],
+    "assumptions": [
+      "The 'typical' salary is best represented by the median rather than the mean due to the presence of extreme outliers",
+      "Monthly salary values are in SAR as stated in the notes from the requester"
+    ],
+    "limitations": [
+      "All departments have 32 or more employees (hr=50, it=54, ops=32, sales=64), so none are small samples (<30 rows)",
+      "The extreme outlier of 950,000 SAR in the ops department may be a data entry error or represent an executive position not typical for most employees",
+      "Only one month's salary data is available; no temporal trends can be analyzed"
+    ],
+    "confidence": "high"
+  }
+}
