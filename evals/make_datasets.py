@@ -34,6 +34,7 @@ def case(
         "expect_quality": expect.pop("quality", []),
         # "$" is forbidden unless the data itself uses it: an invented currency is an error
         "forbid": expect.pop("forbid", []) + ([] if expect.pop("has_dollars", False) else ["$"]),
+        "expect_charts": expect.pop("charts", 0),
     }  # fmt: skip
 
 
@@ -247,9 +248,21 @@ def messy_amounts(rng: np.random.Generator) -> Case:
     )  # fmt: skip
 
 
+def monthly_chart(rng: np.random.Generator) -> Case:
+    """Reuses monthly_revenue.csv (daily rows): the answer must be per month, with a chart."""
+    df = pd.read_csv(DATA / "monthly_revenue.csv")
+    totals = df.groupby(pd.to_datetime(df["date"]).dt.month)["revenue"].sum()
+    return case(
+        "monthly_chart", "Chart of monthly totals", "Charts + time grouping",
+        "Make a line chart of total revenue per month, and state the total for January and for June 2025.",
+        ["monthly_revenue.csv"],
+        numbers=[number("January total", totals[1]), number("June total", totals[6])], charts=1,
+    )  # fmt: skip
+
+
 BUILDERS = [
     sales_by_region, monthly_revenue, ab_test, icecream, salaries,
-    orders_customers, budget_excel, injection, small_sample, messy_amounts,
+    orders_customers, budget_excel, injection, small_sample, messy_amounts, monthly_chart,
 ]  # fmt: skip
 
 

@@ -53,6 +53,15 @@ def test_score_case_reports_each_failure() -> None:
     assert failed == {"number", "mention", "quality", "forbid"}
 
 
+@pytest.mark.parametrize(("charts", "ok"), [([], False), (["chart_01.png"], True)])
+def test_score_case_checks_charts(charts: list[str], ok: bool) -> None:
+    good = result("North 15,042.75", quality=["duplicate"]).model_copy(update={"charts": charts})
+    score = score_case({**CASE, "expect_charts": 1}, "m", good)
+    chart_checks = [c for c in score.checks if c.kind == "chart"]
+    assert [c.passed for c in chart_checks] == [ok]
+    assert score.passed is ok
+
+
 def test_score_case_without_result() -> None:
     score = score_case(CASE, "m", None, error="boom")
     assert not score.passed and score.score == 0.0
@@ -68,7 +77,7 @@ def test_summarize_rates() -> None:
 
 def test_answer_key_matches_dataset_files() -> None:
     cases = load_cases()
-    assert len(cases) == 10
+    assert len(cases) == 11
     for case in cases:
         assert case["expect_numbers"] or case["expect_mentions"], case["id"]
         for name in case["datasets"]:

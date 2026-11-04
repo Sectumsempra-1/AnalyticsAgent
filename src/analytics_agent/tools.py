@@ -360,7 +360,27 @@ def normalize(df, notes):
         df[col] = df[col].where(df[col].isna(), df[col].astype(str))
         kind_names = ", ".join(sorted(k.__name__ for k in kinds))
         notes.append(f"column {{col!r}} has mixed value types ({{kind_names}}); stored as text")
+    for col in df.columns:
+        if as_dates(df, col):
+            notes.append(f"column {{col!r}} holds dates; stored as datetime")
     return df
+
+# Unambiguous ISO dates only (2025-03-31, 2025-03-31 14:05:00); 03/04/2025 stays text.
+ISO_DATE = "[0-9]{{4}}-[0-9]{{2}}-[0-9]{{2}}(?:[ T][0-9]{{2}}:[0-9]{{2}}(?::[0-9]{{2}}(?:[.][0-9]+)?)?)?"
+
+def as_dates(df, col):
+    if not pd.api.types.is_string_dtype(df[col]):
+        return False
+    values = df[col].dropna()
+    if values.empty or not all(isinstance(v, str) for v in values):
+        return False
+    if not values.str.fullmatch(ISO_DATE).all():
+        return False
+    try:
+        df[col] = pd.to_datetime(df[col], format="ISO8601")
+    except (ValueError, TypeError):
+        return False
+    return True
 
 def read(path, ext, notes):
     if ext == ".csv":

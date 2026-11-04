@@ -11,7 +11,7 @@ ROUNDING_CAP = 0.05  # a written number may be rounded, but never by more than 5
 
 @dataclass
 class Check:
-    kind: str  # number | mention | quality | forbid | valid
+    kind: str  # number | mention | quality | forbid | chart | valid
     label: str
     passed: bool
 
@@ -92,6 +92,9 @@ def score_case(case: dict[str, Any], model: str, result: AnalysisResult | None, 
         score.checks.append(Check("quality", " / ".join(options), any(o.lower() in quality_text for o in options)))
     for banned in case["forbid"]:
         score.checks.append(Check("forbid", f"does not state {banned!r}", banned.lower() not in answer.lower()))
+    if case.get("expect_charts"):
+        n = case["expect_charts"]
+        score.checks.append(Check("chart", f"saved at least {n} chart(s)", len(result.charts) >= n))
     return score
 
 

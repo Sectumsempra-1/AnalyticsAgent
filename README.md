@@ -91,7 +91,9 @@ a breaking change for callers.
 
 Each file becomes one SQL/pandas table named after the file (`Sales 2024.csv` →
 `sales_2024`); each Excel sheet becomes its own table (`budget.xlsx`, sheet `Q1` →
-`budget_q1`).
+`budget_q1`). Text columns whose values are all ISO dates (`2025-03-31`, optionally with
+a time) are stored as real dates, so they can be grouped by month or week directly.
+Ambiguous formats like `03/04/2025` stay as text.
 
 ### Output: `AnalysisResult`
 
@@ -328,9 +330,10 @@ Also:
 
 ## Evals
 
-`evals/` holds 10 synthetic datasets with planted, known answers. Each one tests a
-skill: aggregation, growth rates, A/B tests, a correlation trap, outliers, joins, Excel
-sheets, prompt injection, small samples, and messy numbers.
+`evals/` holds 11 cases over synthetic datasets with planted, known answers. Each one
+tests a skill: aggregation, growth rates, A/B tests, a correlation trap, outliers, joins,
+Excel sheets, prompt injection, small samples, messy numbers, and a chart of monthly
+totals.
 
 ```bash
 pip install -e ".[evals]"
@@ -344,8 +347,8 @@ Each run writes `evals/reports/<timestamp>/`, containing `report.pdf` (a shareab
 comparison with charts), `results.json` and every model answer. It also appends one row
 per model to `evals/reports/history.csv`. Each case is scored on: a valid result, numeric
 accuracy against the known answers, required mentions (e.g. "confound" in the
-correlation trap), data-quality issues found, and forbidden content (e.g. the injected
-number). Speed and token use are recorded too.
+correlation trap), data-quality issues found, forbidden content (e.g. the injected
+number or an invented `$`), and whether a requested chart was saved. Speed and token use are recorded too.
 
 Latest results (`evals/reports/2026-11-02_1512`, local RTX 3060 Ti 8 GB):
 
@@ -356,7 +359,7 @@ Latest results (`evals/reports/2026-11-02_1512`, local RTX 3060 Ti 8 GB):
 | qwen3:8b | 7 / 10 | 90% | 50 s |
 | granite4.2:8b (baseline run only) | 0 / 10 | 37% | 270 s |
 
-Ten cases is a sanity check, not a benchmark. Re-run the evals whenever you change the
+Eleven cases is a sanity check, not a benchmark. Re-run the evals whenever you change the
 model or the prompts.
 
 ## Development

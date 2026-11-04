@@ -52,6 +52,26 @@ def test_workspace_data_files_are_read_only(ws: Workspace) -> None:
     assert not mode & stat.S_IWRITE
 
 
+def test_iso_date_text_becomes_datetime(tmp_path: Path) -> None:
+    csv = tmp_path / "rev.csv"
+    csv.write_text(
+        "day,stamp,us_style,mixed,revenue\n"
+        "2025-01-15,2025-01-15 09:30:00,01/15/2025,2025-01-15,10\n"
+        "2025-02-03,2025-02-03T17:05:00,02/03/2025,soon,20\n"
+        ",,,,5\n",
+        encoding="utf-8",
+    )
+    ws = Workspace.create([csv], tmp_path / "ws", timeout_s=20)
+    notes = ws.tables["rev"].notes
+    assert any("'day' holds dates" in n for n in notes) and any("'stamp' holds dates" in n for n in notes)
+    assert not any("'us_style'" in n or "'mixed'" in n for n in notes)  # ambiguous or not all dates
+    out = ws.run_sql(
+        "SELECT date_trunc('month', day) AS m, SUM(revenue) AS r FROM rev WHERE day IS NOT NULL GROUP BY m ORDER BY m"
+    )
+    assert "2025-01-01" in out and "2025-02-01" in out
+    assert "[datetime64" in ws.profile_dataset("rev")
+
+
 def test_mixed_type_column_is_noted(ws: Workspace) -> None:
     assert any("mixed value types" in n for n in ws.tables["mixed"].notes)
 
