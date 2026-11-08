@@ -63,7 +63,7 @@ def test_unsupported_file_type_is_rejected(model: ScriptedModel, capsys: pytest.
 def test_missing_model_setting_is_reported(
     fixture_files: dict[str, Path], monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    monkeypatch.setattr("analytics_agent.config.load_dotenv", lambda: None)  # ignore the developer's .env
+    monkeypatch.setattr("analytics_agent.config.load_dotenv", lambda *_: None)  # ignore the developer's .env
     monkeypatch.delenv("MODEL_NAME", raising=False)
     assert main(["ask", "q", str(fixture_files["sales"])]) == 2
     assert "MODEL_NAME is not set" in capsys.readouterr().err

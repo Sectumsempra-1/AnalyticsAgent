@@ -4,7 +4,7 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
-from dotenv import load_dotenv
+from dotenv import find_dotenv, load_dotenv
 
 STRUCTURED_OUTPUT_METHODS = ("function_calling", "json_schema", "json_mode")
 
@@ -30,7 +30,9 @@ class Settings:
     @classmethod
     def from_env(cls) -> "Settings":
         """Read settings from the environment. Values already set take precedence over .env."""
-        load_dotenv()
+        # Look for .env from the current directory upward, not from where this package is
+        # installed: an installed copy in site-packages would otherwise miss the project's .env.
+        load_dotenv(find_dotenv(usecwd=True))
         name = os.getenv("MODEL_NAME", "").strip()
         if not name:
             raise ConfigError("MODEL_NAME is not set (see .env.example)")

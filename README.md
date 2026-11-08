@@ -29,22 +29,47 @@ AnalysisRequest ─▶ prepare ─▶ agent ⇄ tools ─▶ finalize ─▶ ver
 
 ## Quick start
 
-Requires Python 3.11+.
+Requires Python 3.11+ (tested on 3.12 and 3.14).
+
+### 1. Get the agent
+
+**To work on the agent or try it out**, clone the repository:
 
 ```bash
+git clone https://github.com/Sectumsempra-1/AnalyticsAgent.git
+cd AnalyticsAgent
 python -m venv .venv
 .venv\Scripts\activate            # Windows  (macOS/Linux: source .venv/bin/activate)
 pip install -e ".[ollama]"        # or ".[openai]" for an OpenAI-compatible server
 cp .env.example .env              # then edit .env if needed
 ```
 
-The default model is a free local one, served by [Ollama](https://ollama.com):
+**To use it inside your own project** (e.g. the researcher agent), install it as a
+package into that project's environment. No copy of the code is needed:
+
+```bash
+pip install "analytics-agent[ollama] @ git+https://github.com/Sectumsempra-1/AnalyticsAgent.git"
+```
+
+Then copy [`.env.example`](.env.example) into your project as `.env`, or set the same
+variables in your environment. The `.env` file is looked up from the **current working
+directory** (and its parent folders). Pin a commit for stable builds:
+`...AnalyticsAgent.git@<commit>`.
+
+### 2. Get a model
+
+The default model is a free local one, served by [Ollama](https://ollama.com). Install
+Ollama, make sure it is running, then:
 
 ```bash
 ollama pull qwen3.5:9b            # ~6.6 GB; runs on an 8 GB GPU
 ```
 
-### From the command line
+To use another model (e.g. the company's), see [Configuration](#configuration).
+
+### 3. Run it
+
+#### From the command line
 
 ```bash
 analytics-agent ask "Which region has the highest total sales?" evals/datasets/sales_by_region.csv
@@ -56,8 +81,16 @@ analytics-agent ask "..." data.csv --json                  # raw AnalysisResult 
 Progress (each tool call) is printed while the agent works, followed by the answer,
 findings, data-quality notes, limitations and chart paths. Run `analytics-agent ask --help`
 for every option. Exit code: `0` on success, `2` on bad input, configuration or model errors.
+Put quotes around a path that contains spaces (`"C:\My Data\sales.csv"`), with one pair of quotes only.
 
-### From Python
+Try the demo in `examples/`: weekly ad spend and sales, where both rise in the
+peak season, so the overall correlation is strong but mostly comes from the season:
+
+```bash
+analytics-agent ask "Does increasing ad spend cause higher sales? Include a chart." examples/ad_spend_sales.csv --context "Weekly data. ad_spend and sales are in SAR."
+```
+
+#### From Python
 
 ```python
 from analytics_agent import AnalysisRequest, AnalysisResult
@@ -241,7 +274,7 @@ environment variables take precedence over `.env`. The template is `.env.example
 | Variable | Default | Meaning |
 |---|---|---|
 | `MODEL_NAME` | **required** | e.g. `qwen3.5:9b`, `gpt-4.1`, your company's model id. |
-| `MODEL_PROVIDER` | (inferred) | Any [`init_chat_model`](https://python.langchain.com/api_reference/langchain/chat_models/langchain.chat_models.base.init_chat_model.html) provider: `ollama`, `openai`, `azure_openai`, `anthropic`, ... Install its package too. |
+| `MODEL_PROVIDER` | (inferred from some names, e.g. `gpt-*`) | **Set it for Ollama models** (`ollama`). Any [`init_chat_model`](https://python.langchain.com/api_reference/langchain/chat_models/langchain.chat_models.base.init_chat_model.html) provider: `ollama`, `openai`, `azure_openai`, `anthropic`, ... Install its package too. |
 | `MODEL_BASE_URL` | (provider default) | Custom endpoint: a company-hosted or OpenAI-compatible server, or a remote Ollama. |
 | `MODEL_TEMPERATURE` | `0` | Keep at 0 for repeatable analysis. |
 | `MODEL_CONTEXT_TOKENS` | `16384` | Ollama only: the model's context window (`num_ctx`). Ollama's own default (4096) is too small and silently drops the start of the conversation. Cloud providers ignore it. |
