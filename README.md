@@ -424,3 +424,7 @@ tests/         # pytest suite; fake_model.py is the scripted model
 
 Pinned: `langgraph==1.2.19`. LangGraph's API changes between versions, so check its
 docs before upgrading the pin.
+
+## License
+
+[MIT](LICENSE)
