@@ -198,7 +198,8 @@ def make_tools(workspace: Workspace) -> list[Callable[[str], str]]:
     def make_chart(code: str) -> str:
         """Draw a chart with matplotlib (`plt` is imported, tables are preloaded as
         DataFrames). Create exactly one figure and do not call plt.show() or savefig;
-        the current figure is saved as a PNG and its path is returned.
+        the current figure is saved as a PNG and its path is returned. Pass column
+        values, not names: plt.scatter(df['x'], df['y']), not plt.scatter('x', 'y').
 
         Args:
             code: Python source that draws the chart.
@@ -515,6 +516,22 @@ _CHART_FOOTER = """
 if not plt.get_fignums():
     print("Error: the code did not create a matplotlib figure.", file=_sys.stderr)
     _sys.exit(1)
+# Catch plt.scatter('x', 'y') without data=: matplotlib then plots the column *names* as
+# text categories (one point), not the column values. Both axes showing only column names
+# is that mistake; one such axis can be a legitimate bar chart comparing columns.
+_columns = {{str(c) for _df in tables.values() for c in _df.columns}}
+for _ax in plt.gcf().axes:
+    _names = [list(getattr(_axis.units, "_mapping", None) or []) for _axis in (_ax.xaxis, _ax.yaxis)]
+    if all(_n and all(str(v) in _columns for v in _n) for _n in _names):
+        _x, _y = _names[0][0], _names[1][0]
+        print(
+            f"Error: the chart plots the column names {{_x!r}} and {{_y!r}} as text, not their values, "
+            f"so it shows a single point. Pass the columns themselves, e.g. "
+            f"plt.scatter(df[{{_x!r}}], df[{{_y!r}}]) or plt.scatter({{_x!r}}, {{_y!r}}, data=df). "
+            "The chart was not saved.",
+            file=_sys.stderr,
+        )
+        _sys.exit(1)
 plt.gcf().savefig({path!r}, dpi=120, bbox_inches="tight")
 print({marker!r})
 """

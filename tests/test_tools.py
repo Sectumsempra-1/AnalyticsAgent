@@ -221,6 +221,24 @@ def test_chart_is_saved(ws: Workspace) -> None:
     assert path.read_bytes()[:8] == b"\x89PNG\r\n\x1a\n"
 
 
+def test_chart_of_column_names_is_rejected(ws: Workspace) -> None:
+    before = len(ws.chart_paths())
+    out = ws.make_chart("plt.scatter('region', 'amount')")  # names, not values: one bogus point
+    assert out.startswith("Error:") and "column names 'region' and 'amount'" in out
+    assert "data=df" in out and len(ws.chart_paths()) == before
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        "plt.scatter('order_id', 'amount', data=sales)",  # names with data= are fine
+        "plt.bar(['amount', 'order_id'], [1, 2])",  # comparing columns: one category axis is fine
+    ],
+)
+def test_chart_with_values_is_saved(ws: Workspace, code: str) -> None:
+    assert ws.make_chart(code).startswith("Chart saved: ")
+
+
 def test_chart_without_figure_errors(ws: Workspace) -> None:
     out = ws.make_chart("x = 1")
     assert out.startswith("Error:") and "did not create a matplotlib figure" in out
